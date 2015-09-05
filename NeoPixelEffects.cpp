@@ -1,16 +1,9 @@
 /*-------------------------------------------------------------------------
-  Arduino library to control a wide variety of WS2811- and WS2812-based RGB
-  LED devices such as Adafruit FLORA RGB Smart Pixels and NeoPixel strips.
-  Currently handles 400 and 800 KHz bitstreams on 8, 12 and 16 MHz ATmega
-  MCUs, with LEDs wired for various color orders.  8 MHz MCUs provide
-  output on PORTB and PORTD, while 16 MHz chips can handle most output pins
-  (possible exception with upper PORT registers on the Arduino Mega).
-  Written by Phil Burgess / Paint Your Dragon for Adafruit Industries,
-  contributions by PJRC, Michael Miller and other members of the open
-  source community.
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing products
-  from Adafruit!
+  Arduino library to provide a variety of effects when using Adafruit's
+  NeoPixel library along with NeoPixels and other compatible hardware.
+  This library is a work in progress and it's main purpose to help get
+  my coding back on track after a long absence. Wish me luck!
+  Written by Nolan Moore.
   -------------------------------------------------------------------------
   This file is part of the NeoPixel Effects library.
   NeoPixel is free software: you can redistribute it and/or modify

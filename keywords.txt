@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map For NeoPixelEffects
+#######################################
+# Class
+#######################################
+
+EffectColor KEYWORD1
+NeoPixelEffects	KEYWORD1
+
+#######################################
+# Methods and Functions
+#######################################
+
+initializeEffect	KEYWORD2
+setEffect			KEYWORD2
+updateEffect	KEYWORD2
+updateTrailEffect		KEYWORD2
+updateSparkleEffect	KEYWORD2
+updateRandomEffect			KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+COLOR_RED			LITERAL1
+COLOR_YELLOW		LITERAL1
+COLOR_GREEN		LITERAL1
+COLOR_BLUE		LITERAL1
+COLOR_CYAN			LITERAL1
+COLOR_MAGENTA		LITERAL1
+COLOR_WHITE		LITERAL1
+COLOR_BLACK		LITERAL1

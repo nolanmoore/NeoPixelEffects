@@ -12,7 +12,10 @@
   License along with NeoPixel.  If not, see
   <http://www.gnu.org/licenses/>.
   --------------------------------------------------------------------*/
-  
+
+#ifndef NEOPIXELEFFECTS_H
+#define NEOPIXELEFFECTS_H
+
 #include <Adafruit_NeoPixel.h>
 
 #if (ARDUINO >= 100)
@@ -47,7 +50,7 @@ class EffectColor {
     ~EffectColor();
 
   private:
-    uint8_t 
+    uint8_t
       _r,  // Red value
       _g,  // Green value
       _b;  // Blue value
@@ -73,3 +76,5 @@ class NeoPixelEffects {
       _effectcolor2,
       _effectcolor3;
 };
+
+#endif

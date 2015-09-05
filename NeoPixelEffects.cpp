@@ -82,7 +82,7 @@ EffectColor::~EffectColor() {
 NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pixelset, Effect effect, uint16_t range, EffectColor ec1, EffectColor ec2, EffectColor ec3) :
   _pix(pixelset), _effect(effect), _range(range), _effectcolor1(ec1), _effectcolor2(ec2), _effectcolor3(ec3)
 {
-  
+
 }
 
 NeoPixelEffects::NeoPixelEffects() :
@@ -119,5 +119,3 @@ int NeoPixelEffects::updateTrailEffect() {
 void NeoPixelEffects::setEffect(Effect effect) {
   _effect = effect;
 }
-
-

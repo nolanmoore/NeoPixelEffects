@@ -35,46 +35,66 @@
 #define COLOR_BLACK    '0'
 #define COLOR_CUSTOM   'X'
 
+#define FORWARD true
+#define REVERSE false
+
 enum Effect {
-  TRAIL,
+  CHASE,
   SPARKLE,
+  STATIC,
   RANDOM,
+  LARSON,
   NONE
 };
 
-class EffectColor {
-  public:
-    EffectColor(uint8_t r, uint8_t g, uint8_t b);
-    EffectColor(char color);
-    EffectColor(void);
-    ~EffectColor();
-
-  private:
-    uint8_t
-      _r,  // Red value
-      _g,  // Green value
-      _b;  // Blue value
+struct EffectColor {
+  int r;
+  int g;
+  int b;
 };
 
 class NeoPixelEffects {
   public:
-    NeoPixelEffects(Adafruit_NeoPixel *pixelset, Effect effect, uint16_t range, EffectColor ec1, EffectColor ec2, EffectColor ec3);
-    NeoPixelEffects(void);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec);
+    // NeoPixelEffects(void);
     ~NeoPixelEffects();
 
-    int initializeEffect();
-    int updateEffect();
-    int updateTrailEffect();
-    void setEffect(Effect effect);
+    void initialize(Effect effect); // Initializes effect
+    void update(); // Process effect
+    void setEffect(Effect effect);  // Sets effect
+    int setColor(int redvalue, int greenvalue, int bluevalue);
+    void setColor(EffectColor ec);
+    int setRange(int pixstart, int pixend);
+    int setAreaOfEffect(int aoe);
+    void setDelay(unsigned long delay);
+    void setLooping(bool looping);
+    void setDirection(bool dir);
+    // void transferPixels(Adafruit_NeoPixel *newpixelset);
 
   private:
-    Adafruit_NeoPixel *_pix;  // A reference to the one created in the user code
-    Effect _effect;           // Your silly or awesome effect
-    uint16_t _range;          // Length of effect in pixels
+    int updateChaseEffect();
+    // int updateLarsonEffect();
+    // int updateSparkleEffect();
+    // int updateStaticEffect();
+    // int updateRandomEffect();
+
+    Adafruit_NeoPixel *_pix;  // A reference to the one created in the user code TODO is this needed?
+    Effect _effect;           // Your silly or awesome effect!
+    int
+      _pixstart,              // First NeoPixel in range of effect
+      _pixend,                // Last NeoPixel in range of effect
+      _pixrange,              // Length of effect area
+      _pixaoe,                // The length of the effect that takes place within the range
+      _pixcurrent;
+    bool
+      _looping,               // Whether or not the effect loops in area
+      _direction;               // Whether or not the effect moves from start to end pixel
+    unsigned long
+      _lastupdate,            // Last update time, in milliseconds since sys reboot
+      _delay;                 // Period at which effect should update, in milliseconds
     EffectColor
-      _effectcolor1,          // Up to 3 colors used in the effects
-      _effectcolor2,
-      _effectcolor3;
+      _effectcolor;           // Up to 2 colors used in the effects, refer to struct
 };
 
 #endif

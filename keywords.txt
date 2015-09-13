@@ -11,22 +11,29 @@ NeoPixelEffects	KEYWORD1
 # Methods and Functions
 #######################################
 
-initializeEffect	KEYWORD2
-setEffect			KEYWORD2
-updateEffect	KEYWORD2
-updateTrailEffect		KEYWORD2
+initialize	KEYWORD2
+setEffect	KEYWORD2
+update	KEYWORD2
+updateTrailEffect	KEYWORD2
 updateSparkleEffect	KEYWORD2
-updateRandomEffect			KEYWORD2
+updateRandomEffect	KEYWORD2
+setColor	KEYWORD2
+setRange	KEYWORD2
+setLooping	KEYWORD2
+setDirection	KEYWORD2
+setAreaOfEffect	KEYWORD2
 
 #######################################
 # Constants
 #######################################
 
-COLOR_RED			LITERAL1
-COLOR_YELLOW		LITERAL1
-COLOR_GREEN		LITERAL1
-COLOR_BLUE		LITERAL1
-COLOR_CYAN			LITERAL1
-COLOR_MAGENTA		LITERAL1
-COLOR_WHITE		LITERAL1
-COLOR_BLACK		LITERAL1
+COLOR_RED	LITERAL1
+COLOR_YELLOW	LITERAL1
+COLOR_GREEN	LITERAL1
+COLOR_BLUE	LITERAL1
+COLOR_CYAN	LITERAL1
+COLOR_MAGENTA	LITERAL1
+COLOR_WHITE	LITERAL1
+COLOR_BLACK	LITERAL1
+FORWARD	LITERAL1
+REVERSE LITERAL1

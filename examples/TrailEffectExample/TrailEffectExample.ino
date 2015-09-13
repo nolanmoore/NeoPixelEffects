@@ -11,90 +11,53 @@
 // On a Trinket or Gemma we suggest changing this to 1
 #define PIN            A0
 
-#define NUMPIXELS      143
+#define NUMPIXELS      144
 
 #define MAXBRIGHTNESS  75
-#define MAXTRAILLENGTH 10
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-NeoPixelEffects effect = NeoPixelEffects();
+Effect effectType = CHASE;  // Effect
+int rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
+int rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
+int areaOfEffect = 10;       // # pixels (> 0 and < rangeEnd - rangeStart)
+unsigned long updateDelay = 10;   // millis
+int redValue = 200;           // 0 to 255
+int greenValue = 75;       // 0 to 255
+int blueValue = 0;          // 0 to 255
+bool looping = true;        // boolean value
+bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
 
-int delayval = 10; // delay for half a second
+EffectColor cyan = {0, 150, 150};
+EffectColor magenta = {150, 0, 150};
+EffectColor yellow = {150, 150, 0};
+
+NeoPixelEffects effect1 = NeoPixelEffects(&pixels, CHASE, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan);
+NeoPixelEffects effect2 = NeoPixelEffects(&pixels, CHASE, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta);
+NeoPixelEffects effect3 = NeoPixelEffects(&pixels, CHASE, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow);
+
+//NeoPixelEffects effect4 = NeoPixelEffects(&pixels, CHASE, rangeStart, rangeEnd, areaOfEffect, updateDelay, 150, 0, 0);
+//NeoPixelEffects effect5 = NeoPixelEffects(&pixels, CHASE, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, 0, 150, 0);
+//NeoPixelEffects effect6 = NeoPixelEffects(&pixels, CHASE, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, 0, 0, 150);
+
 
 void setup() {
-  pixels.begin(); // This initializes the NeoPixel library.
-  
+  pixels.begin();
   Serial.begin(9600);
+//  effect4.setDirection(REVERSE);
+//  effect5.setDirection(REVERSE);
+//  effect6.setDirection(REVERSE);
 }
 
 void loop() {
-  for(int i = 0; i < NUMPIXELS; i++){
-//    if (trail(i, 10, 150, COLOR_RED)) {
-//      Serial.println("Enter a length less then the number of pixels available");
-//    } else {
-    {
-      int res = trail(23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_RED);
-      res = trail(2 * 23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_YELLOW);
-      res = trail(3 * 23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_GREEN);
-      res = trail(4 * 23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_CYAN);
-      res = trail(5 * 23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_BLUE);
-      res = trail(6 * 23 + i, MAXTRAILLENGTH, MAXBRIGHTNESS, COLOR_MAGENTA);
-      pixels.show(); // This sends the updated pixel color to the hardware.
-    }
-    
-    delay(delayval); // Delay for a period of time (in milliseconds).
-  }
+  effect1.update();
+  effect2.update();
+  effect3.update();
+
+//  effect4.update();
+//  effect5.update();
+//  effect6.update();
 }
-
-int trail(int p, int tlen, int maxb, int c) {
-  // Sanity check
-  if (NUMPIXELS - tlen <= 0) return -1;
-  if (p < 0) {
-    p = NUMPIXELS + p; // Can trail behind other trails
-  }
-  if (p > NUMPIXELS) {
-    int octaves = p / NUMPIXELS;
-    p -= octaves * NUMPIXELS;
-  }
-  
-  // Get fraction
-  int sub = maxb / tlen;
-  while (sub * tlen > maxb) {
-    sub--;
-  }
-
-  // Blaze trail
-  for (int j = 0; j < tlen; j++) {
-    int color = (j == tlen - 1) ? 0 : maxb - sub * j;
-    int pin = (p - j < 0) ? NUMPIXELS + p - j : p - j;
-    switch (c){
-      case COLOR_RED:
-        pixels.setPixelColor(pin, pixels.Color(color,0,0));
-        break;
-      case COLOR_YELLOW:
-        pixels.setPixelColor(pin, pixels.Color(color,color,0));
-        break;
-      case COLOR_GREEN:
-        pixels.setPixelColor(pin, pixels.Color(0,color,0));
-        break;
-      case COLOR_CYAN:
-        pixels.setPixelColor(pin, pixels.Color(0,color,color));
-        break;
-      case COLOR_BLUE:
-        pixels.setPixelColor(pin, pixels.Color(0,0,color));
-        break;
-      case COLOR_MAGENTA:
-        pixels.setPixelColor(pin, pixels.Color(color,0,color));
-        break;
-      default:
-        pixels.setPixelColor(pin, pixels.Color(color,color,0));
-    }
-  }
-
-  return 0;
-}
-

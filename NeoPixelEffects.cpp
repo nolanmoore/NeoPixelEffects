@@ -21,101 +21,148 @@
 
 #include "NeoPixelEffects.h"
 
-EffectColor::EffectColor(uint8_t r, uint8_t g, uint8_t b) {
-  _r = r;
-  _g = g;
-  _b = b;
-}
-
-EffectColor::EffectColor(char color) {
-  switch (color) {
-    case COLOR_RED:
-      _r = 255;
-      _g = 0;
-      _b = 0;
-      break;
-    case COLOR_YELLOW:
-      _r = 255;
-      _g = 255;
-      _b = 0;
-      break;
-    case COLOR_GREEN:
-      _r = 0;
-      _g = 255;
-      _b = 0;
-      break;
-    case COLOR_CYAN:
-      _r = 0;
-      _g = 255;
-      _b = 255;
-      break;
-    case COLOR_BLUE:
-      _r = 0;
-      _g = 0;
-      _b = 255;
-      break;
-    case COLOR_MAGENTA:
-      _r = 255;
-      _g = 0;
-      _b = 255;
-      break;
-    case COLOR_WHITE:
-      _r = 255;
-      _g = 255;
-      _b = 255;
-      break;
-    default:
-      _r = 0;
-      _g = 0;
-      _b = 0;
-  }
-}
-
-EffectColor::EffectColor(void) {
-  EffectColor(COLOR_BLACK); // Initialize as black
-}
-
-EffectColor::~EffectColor() {
-  // DESTROY nothing.
-}
-
-NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pixelset, Effect effect, uint16_t range, EffectColor ec1, EffectColor ec2, EffectColor ec3) :
-  _pix(pixelset), _effect(effect), _range(range), _effectcolor1(ec1), _effectcolor2(ec2), _effectcolor3(ec3)
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue) :
+  _pix(pix)
 {
-
+  setRange(pixstart, pixend);
+  setAreaOfEffect(aoe);
+  setDelay(delay);
+  setColor(redvalue, greenvalue, bluevalue);
+  _looping = true;
+  _direction = FORWARD;
+  initialize(effect);
 }
 
-NeoPixelEffects::NeoPixelEffects() :
-  _effect(NONE), _range(0)
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec) :
+  _pix(pix)
 {
-  _pix = new Adafruit_NeoPixel();
-  _effectcolor1 = EffectColor();
-  _effectcolor2 = EffectColor();
-  _effectcolor3 = EffectColor();
+  setRange(pixstart, pixend);
+  setAreaOfEffect(aoe);
+  setDelay(delay);
+  setColor(ec);
+  _looping = true;
+  _direction = FORWARD;
+  initialize(effect);
 }
 
-NeoPixelEffects::~NeoPixelEffects() {
+NeoPixelEffects::~NeoPixelEffects()
+{
   *_pix = NULL;
 }
 
-int NeoPixelEffects::initializeEffect() {
-  return 0;
-}
-
-int NeoPixelEffects::updateEffect() {
-  switch (_effect) {
-    case TRAIL:
-      updateTrailEffect();
-      break;
-    default:
-      int i = 0;
-  }
-  return 0;
-}
-
-int NeoPixelEffects::updateTrailEffect() {
-  return 0;
-}
-void NeoPixelEffects::setEffect(Effect effect) {
+void NeoPixelEffects::initialize(Effect effect)
+{
   _effect = effect;
+  _lastupdate = millis();
+
+  update();
+}
+
+void NeoPixelEffects::update()
+{
+  unsigned long timenow = millis();
+  if (timenow - _lastupdate > _delay) {
+    _lastupdate = timenow;
+    switch (_effect) {
+      case CHASE:
+        updateChaseEffect();
+        break;
+      default:
+        break;
+    }
+    _pix->show();
+  }
+}
+
+int NeoPixelEffects::updateChaseEffect()
+{
+  // Get fraction
+  int maxb = max(_effectcolor.r, max(_effectcolor.g, _effectcolor.b));
+  float ratio = maxb / _pixaoe;
+
+  for (int j = 0; j < _pixaoe; j++) {
+    int redvalue =    (ratio * j / maxb) * _effectcolor.r;
+    int greenvalue =  (ratio * j / maxb) * _effectcolor.g;
+    int bluevalue =   (ratio * j / maxb) * _effectcolor.b;
+
+    int temppixel;
+    if (_direction == FORWARD) {
+      temppixel = (_pixcurrent + j > _pixend && _looping == true) ? _pixstart + (_pixcurrent + j) - _pixend - 1 : _pixcurrent + j;
+    } else {
+      temppixel = (_pixcurrent - j < _pixstart && _looping == true) ? _pixend - (abs(_pixstart - (_pixcurrent - j)) + 1) : _pixcurrent - j;
+    }
+
+    _pix->setPixelColor(temppixel, _pix->Color(redvalue, greenvalue, bluevalue));
+  }
+
+  if (_direction == FORWARD) {
+    _pixcurrent = (_pixcurrent + 1 > _pixend && _looping == true) ? _pixstart : _pixcurrent + 1;
+  } else {
+    _pixcurrent = (_pixcurrent - 1 < _pixstart && _looping == true) ? _pixend : _pixcurrent - 1;
+  }
+
+  return 0;
+}
+
+void NeoPixelEffects::setEffect(Effect effect)
+{
+  _effect = effect;
+  NeoPixelEffects::update();
+}
+
+int NeoPixelEffects::setRange(int pixstart, int pixend)
+{
+  if (pixstart >= 0 && pixstart <= pixend && pixend < _pix->numPixels()) {
+    _pixstart = pixstart;
+    _pixend = pixend;
+    _pixrange = _pixend - _pixstart + 1;
+    return 1;
+  } else {
+    // Arguments out of range
+    return 0;
+  }
+}
+
+int NeoPixelEffects::setAreaOfEffect(int aoe)
+{
+  if (aoe > 0 && aoe <= _pixrange) {
+    _pixaoe = aoe;
+    return 1;
+  } else {
+    // Arguments out of range
+    return 0;
+  }
+}
+
+void NeoPixelEffects::setDelay(unsigned long updateDelay)
+{
+  _delay = updateDelay;
+}
+
+int NeoPixelEffects::setColor(int redvalue, int greenvalue, int bluevalue)
+{
+  if (redvalue < 256 && redvalue > -1 && greenvalue < 256 && greenvalue > -1 && bluevalue < 256 && bluevalue > -1) {
+    _effectcolor.r = redvalue;
+    _effectcolor.g = greenvalue;
+    _effectcolor.b = bluevalue;
+    return 1;
+  } else {
+    // Arguments out of range
+    return 0;
+  }
+}
+
+void NeoPixelEffects::setColor(EffectColor color)
+{
+  _effectcolor = color;
+}
+
+void NeoPixelEffects::setLooping(bool looping)
+{
+  _looping = looping;
+}
+
+void NeoPixelEffects::setDirection(bool dir)
+{
+  _direction = dir;
 }

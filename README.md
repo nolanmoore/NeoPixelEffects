@@ -8,19 +8,20 @@ After downloading, rename folder to 'NeoPixelEffects' and install in Arduino Lib
 ### Constructors/Destructors
 ~~~arduino
 NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue);
+NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor color);
 ~~~
 ### Public Functions
 ~~~arduino
-int initialize(Effect effect)
-void update()
-void setEffect(Effect effect)
-int setRange(int startpixel, int endpixel)
-int setAreaOfEffect(int areaofeffect)
-void setDelay(unsigned long delay)
-int setColor(int redValue, int greenValue, int blueValue)
-void setColor(EffectColor color)
-void setLooping(bool setloop)
-void setDirection(bool direction)
+int  initialize(Effect effect);
+void update();
+void setEffect(Effect effect);
+int  setRange(int pixstart, int pixend);
+int  setAreaOfEffect(int areaofeffect);
+void setDelay(unsigned long delay);
+int  setColor(int redvalue, int greenvalue, int bluevalue);
+void setColor(EffectColor color);
+void setLooping(bool value);
+void setDirection(bool direction);
 ~~~
 ## Effect values
 * CHASE

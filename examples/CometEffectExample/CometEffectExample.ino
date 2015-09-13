@@ -1,4 +1,4 @@
-// NeoPixel Effects library test (c) 2015 Nolan Moore
+// NeoPixel Effects library Comet effect test (c) 2015 Nolan Moore
 // released under the GPLv3 license to match the rest of the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
@@ -13,14 +13,12 @@
 
 #define NUMPIXELS      144
 
-#define MAXBRIGHTNESS  75
-
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
 // example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-Effect effectType = CHASE;  // Effect
+Effect effectType = COMET;  // Effect
 int rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
 int rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
 int areaOfEffect = 10;       // # pixels (> 0 and < rangeEnd - rangeStart)
@@ -35,13 +33,13 @@ EffectColor cyan = {0, 150, 150};
 EffectColor magenta = {150, 0, 150};
 EffectColor yellow = {150, 150, 0};
 
-NeoPixelEffects effect1 = NeoPixelEffects(&pixels, CHASE, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan);
-NeoPixelEffects effect2 = NeoPixelEffects(&pixels, CHASE, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta);
-NeoPixelEffects effect3 = NeoPixelEffects(&pixels, CHASE, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow);
+NeoPixelEffects effect1 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan);
+NeoPixelEffects effect2 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta);
+NeoPixelEffects effect3 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow);
 
-//NeoPixelEffects effect4 = NeoPixelEffects(&pixels, CHASE, rangeStart, rangeEnd, areaOfEffect, updateDelay, 150, 0, 0);
-//NeoPixelEffects effect5 = NeoPixelEffects(&pixels, CHASE, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, 0, 150, 0);
-//NeoPixelEffects effect6 = NeoPixelEffects(&pixels, CHASE, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, 0, 0, 150);
+//NeoPixelEffects effect4 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, 150, 0, 0);
+//NeoPixelEffects effect5 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, 0, 150, 0);
+//NeoPixelEffects effect6 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, 0, 0, 150);
 
 
 void setup() {

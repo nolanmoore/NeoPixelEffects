@@ -45,6 +45,22 @@ NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixs
   initialize(effect);
 }
 
+NeoPixelEffects::NeoPixelEffects()
+{
+  *_pix = NULL;
+  _effect = NONE;
+  _pixstart = 0;
+  _pixend = 0;
+  _pixrange = 1;
+  _pixaoe = 1;
+  _pixcurrent = 0;
+  _delay = 0;
+  _lastupdate = 0;
+  _effectcolor = {0, 0, 0};
+  _looping = true;
+  _direction = FORWARD;
+}
+
 NeoPixelEffects::~NeoPixelEffects()
 {
   *_pix = NULL;
@@ -60,21 +76,26 @@ void NeoPixelEffects::initialize(Effect effect)
 
 void NeoPixelEffects::update()
 {
-  unsigned long timenow = millis();
-  if (timenow - _lastupdate > _delay) {
-    _lastupdate = timenow;
-    switch (_effect) {
-      case CHASE:
-        updateChaseEffect();
-        break;
-      default:
-        break;
+  if (_effect != NONE) {
+    unsigned long timenow = millis();
+    if (timenow - _lastupdate > _delay) {
+      _lastupdate = timenow;
+      switch (_effect) {
+        case CHASE:
+          updateChaseEffect();
+          break;
+        case PULSE:
+          updatePulseEffect();
+          break;
+        default:
+          break;
+      }
+      _pix->show();
     }
-    _pix->show();
   }
 }
 
-int NeoPixelEffects::updateChaseEffect()
+void NeoPixelEffects::updateChaseEffect()
 {
   // Get fraction
   int maxb = max(_effectcolor.r, max(_effectcolor.g, _effectcolor.b));
@@ -100,8 +121,37 @@ int NeoPixelEffects::updateChaseEffect()
   } else {
     _pixcurrent = (_pixcurrent - 1 < _pixstart && _looping == true) ? _pixend : _pixcurrent - 1;
   }
+}
 
-  return 0;
+void NeoPixelEffects::updatePulseEffect()
+{
+  Serial.println("updating pulse effect now");
+  static EffectColor pulsecolor = _effectcolor;
+  Serial.print(pulsecolor.r);
+  Serial.print(" ");
+  Serial.print(pulsecolor.g);
+  Serial.print(" ");
+  Serial.print(pulsecolor.b);
+  Serial.println(" ");
+  static int count = 0;
+  Serial.println(count);
+
+  pulsecolor.r = _effectcolor.r * count / 100;
+  pulsecolor.g = _effectcolor.g * count / 100;
+  pulsecolor.b = _effectcolor.b * count / 100;
+  setColor(pulsecolor.r, pulsecolor.g, pulsecolor.b);
+
+  if (_direction == FORWARD) {
+    if (count >= 100) setDirection(REVERSE);
+  } else {
+    if (count <= 0) setDirection(FORWARD);
+  }
+
+  count = (_direction == FORWARD) ? count + 1 : count - 1;
+
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pix->setPixelColor(i, _pix->Color(pulsecolor.r, pulsecolor.g, pulsecolor.b));
+  }
 }
 
 void NeoPixelEffects::setEffect(Effect effect)
@@ -141,10 +191,11 @@ void NeoPixelEffects::setDelay(unsigned long updateDelay)
 
 int NeoPixelEffects::setColor(int redvalue, int greenvalue, int bluevalue)
 {
-  if (redvalue < 256 && redvalue > -1 && greenvalue < 256 && greenvalue > -1 && bluevalue < 256 && bluevalue > -1) {
-    _effectcolor.r = redvalue;
-    _effectcolor.g = greenvalue;
-    _effectcolor.b = bluevalue;
+  if (redvalue > -1 && greenvalue > -1 && bluevalue > -1) {
+    // TODO determine if better to set to value mod 255 than max at 255
+    _effectcolor.r = (redvalue > 255) ? 255 : redvalue;
+    _effectcolor.g = (greenvalue > 255) ? 255 : greenvalue;
+    _effectcolor.b = (bluevalue > 255) ? 255 : bluevalue;
     return 1;
   } else {
     // Arguments out of range

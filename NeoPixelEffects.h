@@ -40,6 +40,7 @@
 
 enum Effect {
   CHASE,
+  COMET,
   PULSE,
   SPARKLE,
   STATIC,
@@ -75,6 +76,7 @@ class NeoPixelEffects {
 
   private:
     void updateChaseEffect();
+    void updateCometEffect();
     void updatePulseEffect();
     // int updateLarsonEffect();
     // int updateSparkleEffect();

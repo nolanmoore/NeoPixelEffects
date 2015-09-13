@@ -1,5 +1,5 @@
 // NeoPixel Effects library Comet effect test (c) 2015 Nolan Moore
-// released under the GPLv3 license to match the rest of the AdaFruit NeoPixel library
+// released under the GPLv3 license to match the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
 #include <Adafruit_NeoPixel.h>
@@ -7,15 +7,9 @@
   #include <avr/power.h>
 #endif
 
-// Which pin on the Arduino is connected to the NeoPixels?
-// On a Trinket or Gemma we suggest changing this to 1
 #define PIN            A0
-
 #define NUMPIXELS      144
 
-// When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
-// Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
-// example for more information on possible values.
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
 Effect effectType = COMET;  // Effect
@@ -28,7 +22,6 @@ int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
 bool looping = true;        // boolean value
 bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
-
 EffectColor cyan = {0, 150, 150};
 EffectColor magenta = {150, 0, 150};
 EffectColor yellow = {150, 150, 0};

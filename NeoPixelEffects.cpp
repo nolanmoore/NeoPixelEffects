@@ -45,6 +45,22 @@ NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixs
   initialize(effect);
 }
 
+NeoPixelEffects::NeoPixelEffects()
+{
+  *_pix = NULL;
+  _effect = NONE;
+  _pixstart = 0;
+  _pixend = 0;
+  _pixrange = 1;
+  _pixaoe = 1;
+  _pixcurrent = 0;
+  _delay = 0;
+  _lastupdate = 0;
+  _effectcolor = {0, 0, 0};
+  _looping = true;
+  _direction = FORWARD;
+}
+
 NeoPixelEffects::~NeoPixelEffects()
 {
   *_pix = NULL;
@@ -60,30 +76,37 @@ void NeoPixelEffects::initialize(Effect effect)
 
 void NeoPixelEffects::update()
 {
-  unsigned long timenow = millis();
-  if (timenow - _lastupdate > _delay) {
-    _lastupdate = timenow;
-    switch (_effect) {
-      case CHASE:
-        updateChaseEffect();
-        break;
-      default:
-        break;
+  if (_effect != NONE) {
+    unsigned long timenow = millis();
+    if (timenow - _lastupdate > _delay) {
+      _lastupdate = timenow;
+      switch (_effect) {
+        case COMET:
+          updateCometEffect();
+          break;
+        case CHASE:
+          updateChaseEffect();
+          break;
+        case PULSE:
+          updatePulseEffect();
+          break;
+        default:
+          break;
+      }
+      _pix->show();
     }
-    _pix->show();
   }
 }
 
-int NeoPixelEffects::updateChaseEffect()
+void NeoPixelEffects::updateCometEffect()
 {
-  // Get fraction
-  int maxb = max(_effectcolor.r, max(_effectcolor.g, _effectcolor.b));
-  float ratio = maxb / _pixaoe;
+  EffectColor tailcolor = {0, 0, 0};
 
   for (int j = 0; j < _pixaoe; j++) {
-    int redvalue =    (ratio * j / maxb) * _effectcolor.r;
-    int greenvalue =  (ratio * j / maxb) * _effectcolor.g;
-    int bluevalue =   (ratio * j / maxb) * _effectcolor.b;
+    float ratio = j / (float)_pixaoe;
+    tailcolor.r = (int)(_effectcolor.r * ratio);
+    tailcolor.g = (int)(_effectcolor.g * ratio);
+    tailcolor.b = (int)(_effectcolor.b * ratio);
 
     int temppixel;
     if (_direction == FORWARD) {
@@ -92,7 +115,7 @@ int NeoPixelEffects::updateChaseEffect()
       temppixel = (_pixcurrent - j < _pixstart && _looping == true) ? _pixend - (abs(_pixstart - (_pixcurrent - j)) + 1) : _pixcurrent - j;
     }
 
-    _pix->setPixelColor(temppixel, _pix->Color(redvalue, greenvalue, bluevalue));
+    _pix->setPixelColor(temppixel, _pix->Color(tailcolor.r, tailcolor.g, tailcolor.b));
   }
 
   if (_direction == FORWARD) {
@@ -100,8 +123,49 @@ int NeoPixelEffects::updateChaseEffect()
   } else {
     _pixcurrent = (_pixcurrent - 1 < _pixstart && _looping == true) ? _pixend : _pixcurrent - 1;
   }
+}
 
-  return 0;
+void NeoPixelEffects::updateChaseEffect()
+{
+  static bool even = true;
+  for (int j = _pixstart; j <= _pixend; j++) {
+    if (even) {
+      if (j % 2 == 0) {
+        _pix->setPixelColor(j, _pix->Color(_effectcolor.r, _effectcolor.g, _effectcolor.b));
+      } else {
+        _pix->setPixelColor(j, _pix->Color(0, 0, 0));
+      }
+    } else {
+      if (j % 2 == 0) {
+        _pix->setPixelColor(j, _pix->Color(0, 0, 0));
+      } else {
+        _pix->setPixelColor(j, _pix->Color(_effectcolor.r, _effectcolor.g, _effectcolor.b));
+      }
+    }
+  }
+  even = !even;
+}
+
+void NeoPixelEffects::updatePulseEffect()
+{
+  EffectColor pulsecolor;
+  static int count = 0;
+
+  float ratio = count / 100.0;
+  pulsecolor.r = _effectcolor.r * ratio;
+  pulsecolor.g = _effectcolor.g * ratio;
+  pulsecolor.b = _effectcolor.b * ratio;
+
+  if (_direction == FORWARD) {
+    if (count >= 100) setDirection(REVERSE);
+  } else {
+    if (count <= 0) setDirection(FORWARD);
+  }
+  count = (_direction == FORWARD) ? count + 1 : count - 1;
+
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pix->setPixelColor(i, _pix->Color(pulsecolor.r, pulsecolor.g, pulsecolor.b));
+  }
 }
 
 void NeoPixelEffects::setEffect(Effect effect)
@@ -141,10 +205,11 @@ void NeoPixelEffects::setDelay(unsigned long updateDelay)
 
 int NeoPixelEffects::setColor(int redvalue, int greenvalue, int bluevalue)
 {
-  if (redvalue < 256 && redvalue > -1 && greenvalue < 256 && greenvalue > -1 && bluevalue < 256 && bluevalue > -1) {
-    _effectcolor.r = redvalue;
-    _effectcolor.g = greenvalue;
-    _effectcolor.b = bluevalue;
+  if (redvalue > -1 && greenvalue > -1 && bluevalue > -1) {
+    // TODO determine if better to set to value mod 255 than max at 255
+    _effectcolor.r = (redvalue > 255) ? 255 : redvalue;
+    _effectcolor.g = (greenvalue > 255) ? 255 : greenvalue;
+    _effectcolor.b = (bluevalue > 255) ? 255 : bluevalue;
     return 1;
   } else {
     // Arguments out of range

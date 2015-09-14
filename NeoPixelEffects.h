@@ -40,6 +40,8 @@
 
 enum Effect {
   CHASE,
+  COMET,
+  PULSE,
   SPARKLE,
   STATIC,
   RANDOM,
@@ -57,7 +59,7 @@ class NeoPixelEffects {
   public:
     NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue);
     NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec);
-    // NeoPixelEffects(void);
+    NeoPixelEffects();
     ~NeoPixelEffects();
 
     void initialize(Effect effect); // Initializes effect
@@ -73,7 +75,9 @@ class NeoPixelEffects {
     // void transferPixels(Adafruit_NeoPixel *newpixelset);
 
   private:
-    int updateChaseEffect();
+    void updateChaseEffect();
+    void updateCometEffect();
+    void updatePulseEffect();
     // int updateLarsonEffect();
     // int updateSparkleEffect();
     // int updateStaticEffect();

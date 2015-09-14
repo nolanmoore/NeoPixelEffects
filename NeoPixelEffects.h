@@ -39,13 +39,13 @@
 #define REVERSE false
 
 enum Effect {
-  CHASE,
   COMET,
+  CHASE,
   PULSE,
-  SPARKLE,
   STATIC,
-  RANDOM,
-  LARSON,
+  FADE,
+  FILL,
+  EMPTY,
   NONE
 };
 
@@ -57,14 +57,15 @@ struct EffectColor {
 
 class NeoPixelEffects {
   public:
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue);
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool dir, bool looping);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool dir, bool looping);
     NeoPixelEffects();
     ~NeoPixelEffects();
 
     void initialize(Effect effect); // Initializes effect
     void update(); // Process effect
     void setEffect(Effect effect);  // Sets effect
+    Effect getEffect();
     int setColor(int redvalue, int greenvalue, int bluevalue);
     void setColor(EffectColor ec);
     int setRange(int pixstart, int pixend);
@@ -72,16 +73,17 @@ class NeoPixelEffects {
     void setDelay(unsigned long delay);
     void setLooping(bool looping);
     void setDirection(bool dir);
+    void resetEffect();
     // void transferPixels(Adafruit_NeoPixel *newpixelset);
 
   private:
-    void updateChaseEffect();
     void updateCometEffect();
+    void updateChaseEffect();
     void updatePulseEffect();
-    // int updateLarsonEffect();
-    // int updateSparkleEffect();
-    // int updateStaticEffect();
-    // int updateRandomEffect();
+    void updateStaticEffect();
+    void updateFadeEffect();
+    void updateFillEffect();
+    void updateEmptyEffect();
 
     Adafruit_NeoPixel *_pix;  // A reference to the one created in the user code TODO is this needed?
     Effect _effect;           // Your silly or awesome effect!

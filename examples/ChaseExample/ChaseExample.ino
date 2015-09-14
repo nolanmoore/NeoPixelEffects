@@ -16,13 +16,13 @@ Effect effectType = CHASE;  // Effect
 int rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
 int rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
 int areaOfEffect = 10;       // # pixels (> 0 and < rangeEnd - rangeStart)
-unsigned long updateDelay = 10;   // millis
+unsigned long updateDelay = 500;   // millis
 int redValue = 200;           // 0 to 255
 int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
 EffectColor white = {150, 150, 150};
 
-NeoPixelEffects chaseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan);
+NeoPixelEffects chaseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, white);
 
 void setup() {
   pixels.begin();

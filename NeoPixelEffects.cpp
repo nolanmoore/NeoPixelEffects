@@ -100,13 +100,10 @@ void NeoPixelEffects::update()
 
 void NeoPixelEffects::updateCometEffect()
 {
-  // Get fraction
-  int maxb = max(_effectcolor.r, max(_effectcolor.g, _effectcolor.b));
-  float ratio = maxb / _pixaoe;
   EffectColor tailcolor = {0, 0, 0};
 
   for (int j = 0; j < _pixaoe; j++) {
-    float ratio = j / _pixaoe;
+    float ratio = j / (float)_pixaoe;
     tailcolor.r = (int)(_effectcolor.r * ratio);
     tailcolor.g = (int)(_effectcolor.g * ratio);
     tailcolor.b = (int)(_effectcolor.b * ratio);
@@ -151,16 +148,13 @@ void NeoPixelEffects::updateChaseEffect()
 
 void NeoPixelEffects::updatePulseEffect()
 {
-  Serial.println("updating pulse effect now");
   EffectColor pulsecolor;
   static int count = 0;
-  Serial.println(count);
 
-  float ratio = count / 100;
-  pulsecolor.r = (int)(_effectcolor.r * ratio);
-  pulsecolor.g = (int)(_effectcolor.g * ratio);
-  pulsecolor.b = (int)(_effectcolor.b * ratio);
-  setColor(pulsecolor.r, pulsecolor.g, pulsecolor.b);
+  float ratio = count / 100.0;
+  pulsecolor.r = _effectcolor.r * ratio;
+  pulsecolor.g = _effectcolor.g * ratio;
+  pulsecolor.b = _effectcolor.b * ratio;
 
   if (_direction == FORWARD) {
     if (count >= 100) setDirection(REVERSE);

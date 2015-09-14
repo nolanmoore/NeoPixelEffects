@@ -15,7 +15,7 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ80
 Effect effectType = PULSE;  // Effect
 int rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
 int rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
-unsigned long updateDelay = 10;   // millis
+unsigned long updateDelay = 5;   // millis
 int redValue = 200;           // 0 to 255
 int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
@@ -23,7 +23,7 @@ bool looping = true;        // boolean value
 bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
 EffectColor cyan = {0, 150, 150};
 
-NeoPixelEffects effect1 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, cyan);
+NeoPixelEffects pulseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, cyan);
 
 void setup() {
   pixels.begin();
@@ -31,5 +31,5 @@ void setup() {
 }
 
 void loop() {
-  effect1.update();
+  pulseEffect.update();
 }

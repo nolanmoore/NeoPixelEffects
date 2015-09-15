@@ -57,8 +57,8 @@ struct EffectColor {
 
 class NeoPixelEffects {
   public:
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool dir, bool looping);
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool dir, bool looping);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool looping, bool dir);
+    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool looping, bool dir);
     NeoPixelEffects();
     ~NeoPixelEffects();
 

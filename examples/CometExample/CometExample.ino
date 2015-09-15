@@ -21,14 +21,14 @@ int redValue = 200;           // 0 to 255
 int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
 bool looping = true;        // boolean value
-bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
+bool dir = FORWARD;    // FORWARD (true) or REVERSE (false)
 EffectColor cyan = {0, 150, 150};
 EffectColor magenta = {150, 0, 150};
 EffectColor yellow = {150, 150, 0};
 
-NeoPixelEffects effect1 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan);
-NeoPixelEffects effect2 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta);
-NeoPixelEffects effect3 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow);
+NeoPixelEffects effect1 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan, looping, dir);
+NeoPixelEffects effect2 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta, looping, dir);
+NeoPixelEffects effect3 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow, looping, dir);
 
 //NeoPixelEffects effect4 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, 150, 0, 0);
 //NeoPixelEffects effect5 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, 0, 150, 0);

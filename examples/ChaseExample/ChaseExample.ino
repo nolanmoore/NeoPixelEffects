@@ -21,8 +21,10 @@ int redValue = 200;           // 0 to 255
 int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
 EffectColor white = {150, 150, 150};
+bool looping = true;
+bool dir = FORWARD;
 
-NeoPixelEffects chaseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, white);
+NeoPixelEffects effect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, white, looping, dir);
 
 void setup() {
   pixels.begin();
@@ -30,5 +32,5 @@ void setup() {
 }
 
 void loop() {
-  chaseEffect.update();
+  effect.update();
 }

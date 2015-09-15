@@ -17,10 +17,10 @@ int rangeStart = 0;          // # pixel (> 0 and < NUMPIXELS - 2)
 int rangeEnd = 15;           // # pixel (> 1 and < NUMPIXELS - 1)
 unsigned long updateDelay = 100;   // millis
 bool looping = true;         // boolean value
-bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
+bool dir = FORWARD;    // FORWARD (true) or REVERSE (false)
 EffectColor grey = {75, 75, 75};
 
-NeoPixelEffects effect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, grey);
+NeoPixelEffects effect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, grey, looping, dir);
 
 void setup() {
   pixels.begin();

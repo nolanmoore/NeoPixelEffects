@@ -21,7 +21,7 @@
 
 #include "NeoPixelEffects.h"
 
-NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool dir, bool looping) :
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool looping, bool dir) :
   _pix(pix), _direction(dir), _looping(looping)
 {
   setRange(pixstart, pixend);
@@ -33,7 +33,7 @@ NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixs
   initialize(effect);
 }
 
-NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool dir, bool looping) :
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool looping, bool dir) :
   _pix(pix), _direction(dir), _looping(looping)
 {
   setRange(pixstart, pixend);

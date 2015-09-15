@@ -13,10 +13,8 @@ NeoPixelEffects	KEYWORD1
 
 initialize	KEYWORD2
 setEffect	KEYWORD2
+getEffect	KEYWORD2
 update	KEYWORD2
-updateTrailEffect	KEYWORD2
-updateSparkleEffect	KEYWORD2
-updateRandomEffect	KEYWORD2
 setColor	KEYWORD2
 setRange	KEYWORD2
 setLooping	KEYWORD2

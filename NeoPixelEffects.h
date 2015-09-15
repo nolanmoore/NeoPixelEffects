@@ -25,15 +25,14 @@
  #include <pins_arduino.h>
 #endif
 
-#define COLOR_RED      'R'
-#define COLOR_YELLOW   'Y'
-#define COLOR_GREEN    'G'
-#define COLOR_CYAN     'C'
-#define COLOR_BLUE     'B'
-#define COLOR_MAGENTA  'M'
-#define COLOR_WHITE    'W'
-#define COLOR_BLACK    '0'
-#define COLOR_CUSTOM   'X'
+#define COLOR_RED      {255, 0, 0}
+#define COLOR_YELLOW   {255, 255, 0}
+#define COLOR_GREEN    {0, 255, 0}
+#define COLOR_CYAN     {0, 255, 255}
+#define COLOR_BLUE     {0, 0, 255}
+#define COLOR_MAGENTA  {255, 0, 255}
+#define COLOR_WHITE    {255, 255, 255}
+#define COLOR_BLACK    {0, 0, 0}
 
 #define FORWARD true
 #define REVERSE false

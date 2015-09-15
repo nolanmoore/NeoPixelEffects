@@ -265,6 +265,31 @@ void NeoPixelEffects::updateEmptyEffect()
   }
 }
 
+void NeoPixelEffects::updateFireworkEffect()
+{
+  EffectColor white = COLOR_WHITE;
+  int povtail = 4;
+  _pixcurrent = _pixend - _pixaoe / 2;
+
+  static NeoPixelEffects mortar = new NeoPixelEffects(_pix, COMET, _pixstart, _pixcurrent, povtail, _delay, white, false, FORWARD);
+  static NeoPixelEffects sparks_r = new NeoPixelEffects(_pix, NONE, _pixcurrent - _pixaoe / 2, _pixcurrent, povtail, _delay, _effectcolor, false, FORWARD);
+  static NeoPixelEffects sparks_f = new NeoPixelEffects(_pix, NONE, _pixcurrent, _pixcurrent + _pixaoe / 2, povtail, _delay, _effectcolor, false, FORWARD);
+
+  if (mortar.getEffect() != NONE) {
+    mortar.update();
+  } else {
+    sparks_r.initialize(COMET);
+    sparks_f.initialize(COMET);
+    if (sparks_r.getEffect() == NONE && sparks_f.getEffect() == NONE) {
+      setEffect(NONE);
+    } else {
+      sparks_r.update();
+      sparks_f.update();
+    }
+  }
+
+}
+
 void NeoPixelEffects::setEffect(Effect effect)
 {
   _effect = effect;

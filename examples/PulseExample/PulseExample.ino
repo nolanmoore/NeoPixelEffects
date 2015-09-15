@@ -20,10 +20,10 @@ int redValue = 200;           // 0 to 255
 int greenValue = 75;       // 0 to 255
 int blueValue = 0;          // 0 to 255
 bool looping = true;        // boolean value
-bool direction = FORWARD;    // FORWARD (true) or REVERSE (false)
+bool dir = FORWARD;    // FORWARD (true) or REVERSE (false)
 EffectColor cyan = {0, 150, 150};
 
-NeoPixelEffects pulseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, cyan);
+NeoPixelEffects pulseEffect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, cyan, looping, dir);
 
 void setup() {
   pixels.begin();

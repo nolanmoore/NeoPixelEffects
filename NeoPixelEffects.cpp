@@ -21,8 +21,8 @@
 
 #include "NeoPixelEffects.h"
 
-NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue) :
-  _pix(pix)
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool looping, bool dir) :
+  _pix(pix), _direction(dir), _looping(looping)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
@@ -33,8 +33,8 @@ NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixs
   initialize(effect);
 }
 
-NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec) :
-  _pix(pix)
+NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool looping, bool dir) :
+  _pix(pix), _direction(dir), _looping(looping)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
@@ -89,6 +89,18 @@ void NeoPixelEffects::update()
           break;
         case PULSE:
           updatePulseEffect();
+          break;
+        case STATIC:
+          updateStaticEffect();
+          break;
+        case FADE:
+          updateFadeEffect();
+          break;
+        case FILL:
+          updateFillEffect();
+          break;
+        case EMPTY:
+          updateEmptyEffect();
           break;
         default:
           break;
@@ -168,10 +180,100 @@ void NeoPixelEffects::updatePulseEffect()
   }
 }
 
+void NeoPixelEffects::updateStaticEffect()
+{
+  static float redratio = _effectcolor.r / 100.0;
+  static float greenratio = _effectcolor.g / 100.0;
+  static float blueratio = _effectcolor.b / 100.0;
+
+  for (int i = _pixstart; i <= _pixend; i++) {
+    long randnum = random(101);
+    _pix->setPixelColor(i, (uint8_t)(randnum * redratio), (uint8_t)(randnum * greenratio), (uint8_t)(randnum * blueratio));
+  }
+}
+
+/*
+ *  updateFadeEffect
+ *  Does not utilize AOE, CURR, LOOP
+ */
+
+void NeoPixelEffects::updateFadeEffect()
+{
+  // TODO use pointers for counters and other static vars like ratio instead of statics
+  EffectColor fadecolor;
+  static int count = (_direction == FORWARD) ? 0 : 100;
+
+  float ratio = count / 100.0;
+  fadecolor.r = _effectcolor.r * ratio;
+  fadecolor.g = _effectcolor.g * ratio;
+  fadecolor.b = _effectcolor.b * ratio;
+
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pix->setPixelColor(i, _pix->Color(fadecolor.r, fadecolor.g, fadecolor.b));
+  }
+
+  if (_direction == FORWARD) {
+    if (count >= 100) {
+      setEffect(NONE);
+    } else {
+      count++;
+    }
+  } else {
+    if (count <= 0) {
+      setEffect(NONE);
+    } else {
+      count--;
+    }
+  }
+  // TODO Determine if we should change these private update functions to return ints
+}
+
+void NeoPixelEffects::updateFillEffect()
+{
+  _pix->setPixelColor(_pixcurrent, _pix->Color(_effectcolor.r, _effectcolor.g, _effectcolor.b));
+  if (_direction == FORWARD) {
+    if (_pixcurrent != _pixend) {
+      _pixcurrent++;
+    } else {
+      setEffect(NONE);
+    }
+  } else {
+    if (_pixcurrent != _pixstart) {
+      _pixcurrent--;
+    } else {
+      setEffect(NONE);
+    }
+  }
+}
+
+
+void NeoPixelEffects::updateEmptyEffect()
+{
+  _pix->setPixelColor(_pixcurrent, _pix->Color(0, 0, 0));
+  if (_direction == FORWARD) {
+    if (_pixcurrent != _pixend) {
+      _pixcurrent++;
+    } else {
+      setEffect(NONE);
+    }
+  } else {
+    if (_pixcurrent != _pixstart) {
+      _pixcurrent--;
+    } else {
+      setEffect(NONE);
+    }
+  }
+}
+
 void NeoPixelEffects::setEffect(Effect effect)
 {
   _effect = effect;
   NeoPixelEffects::update();
+}
+
+Effect NeoPixelEffects::getEffect()
+{
+  return _effect;
 }
 
 int NeoPixelEffects::setRange(int pixstart, int pixend)
@@ -230,4 +332,12 @@ void NeoPixelEffects::setLooping(bool looping)
 void NeoPixelEffects::setDirection(bool dir)
 {
   _direction = dir;
+}
+
+void NeoPixelEffects::resetEffect()
+{
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pix->setPixelColor(i, _pix->Color(0,0,0));
+  }
+  _pixcurrent = _pixstart;
 }

@@ -12,43 +12,48 @@
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-Effect effectType = COMET;  // Effect
-int rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
-int rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
-int areaOfEffect = 10;       // # pixels (> 0 and < rangeEnd - rangeStart)
-unsigned long updateDelay = 10;   // millis
-int redValue = 200;           // 0 to 255
-int greenValue = 75;       // 0 to 255
-int blueValue = 0;          // 0 to 255
-bool looping = true;        // boolean value
-bool dir = FORWARD;    // FORWARD (true) or REVERSE (false)
-EffectColor cyan = {0, 150, 150};
-EffectColor magenta = {150, 0, 150};
-EffectColor yellow = {150, 150, 0};
+// Mortar
+Effect m_effectType = COMET;  // Effect
+int m_rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
+int m_rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
+int m_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
+unsigned long m_updateDelay = 25;   // millis
+bool m_looping = false;        // boolean value
+bool m_dir = FORWARD;    // FORWARD (true) or REVERSE (false)
+EffectColor grey = {50, 50, 50};
 
-NeoPixelEffects effect1 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, cyan, looping, dir);
-NeoPixelEffects effect2 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, magenta, looping, dir);
-NeoPixelEffects effect3 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, yellow, looping, dir);
+// Sparks 1
+Effect s1_effectType = NONE;  // Effect
+int s1_rangeStart = 47;         // # pixel (> 0 and < NUMPIXELS - 2)
+int s1_rangeEnd = 35;          // # pixel (> 1 and < NUMPIXELS - 1)
+int s1_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
+unsigned long s1_updateDelay = 25;   // millis
+bool s1_looping = false;        // boolean value
+bool s1_dir = REVERSE;    // FORWARD (true) or REVERSE (false)
+EffectColor orange = {150, 100, 0};
 
-//NeoPixelEffects effect4 = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, areaOfEffect, updateDelay, 150, 0, 0);
-//NeoPixelEffects effect5 = NeoPixelEffects(&pixels, effectType, rangeStart + 48, rangeEnd + 48, areaOfEffect, updateDelay, 0, 150, 0);
-//NeoPixelEffects effect6 = NeoPixelEffects(&pixels, effectType, rangeStart + 96, rangeEnd + 96, areaOfEffect, updateDelay, 0, 0, 150);
+// Sparks 2
+Effect s2_effectType = NONE;  // Effect
+int s2_rangeStart = 59;         // # pixel (> 0 and < NUMPIXELS - 2)
+int s2_rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
+int s2_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
+unsigned long s2_updateDelay = 25;   // millis
+bool s2_looping = false;        // boolean value
+bool s2_dir = FORWARD;    // FORWARD (true) or REVERSE (false)
 
+NeoPixelEffects m = NeoPixelEffects(&pixels, m_effectType, m_rangeStart, m_rangeEnd, m_areaOfEffect, m_updateDelay, grey, m_looping, m_dir);
+NeoPixelEffects s1 = NeoPixelEffects(&pixels, s1_effectType, s1_rangeStart, s1_rangeEnd, s1_areaOfEffect, s1_updateDelay, orange, s1_looping, s1_dir);
+NeoPixelEffects s2 = NeoPixelEffects(&pixels, s2_effectType, s2_rangeStart, s2_rangeEnd, s2_areaOfEffect, s2_updateDelay, orange, s2_looping, s2_dir);
 
 void setup() {
   pixels.begin();
   Serial.begin(9600);
-//  effect4.setDirection(REVERSE);
-//  effect5.setDirection(REVERSE);
-//  effect6.setDirection(REVERSE);
 }
 
 void loop() {
-  effect1.update();
-  effect2.update();
-  effect3.update();
-
-//  effect4.update();
-//  effect5.update();
-//  effect6.update();
+  if (!m.getEffect() == NONE) {
+    m.update()
+  } else {
+    
+  }
 }

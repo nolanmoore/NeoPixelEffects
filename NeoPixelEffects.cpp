@@ -19,29 +19,25 @@
   <http://www.gnu.org/licenses/>.
   -------------------------------------------------------------------------*/
 
-#include "NeoPixelEffects.h"
+#include <NeoPixelEffects.h>
 
 NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool looping, bool dir) :
-  _pix(pix), _direction(dir), _looping(looping)
+  _pix(pix), _looping(looping), _direction(dir)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
   setDelay(delay);
   setColor(redvalue, greenvalue, bluevalue);
-  _looping = true;
-  _direction = FORWARD;
   initialize(effect);
 }
 
 NeoPixelEffects::NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool looping, bool dir) :
-  _pix(pix), _direction(dir), _looping(looping)
+  _pix(pix), _looping(looping), _direction(dir)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
   setDelay(delay);
   setColor(ec);
-  _looping = true;
-  _direction = FORWARD;
   initialize(effect);
 }
 
@@ -53,7 +49,7 @@ NeoPixelEffects::NeoPixelEffects()
   _pixend = 0;
   _pixrange = 1;
   _pixaoe = 1;
-  _pixcurrent = 0;
+  _pixcurrent = _pixstart;
   _delay = 0;
   _lastupdate = 0;
   _effectcolor = {0, 0, 0};
@@ -70,8 +66,11 @@ void NeoPixelEffects::initialize(Effect effect)
 {
   _effect = effect;
   _lastupdate = millis();
-
-  update();
+  if (_direction == FORWARD) {
+    _pixcurrent = _pixstart;
+  } else {
+    _pixcurrent = _pixend;
+  }
 }
 
 void NeoPixelEffects::update()
@@ -102,6 +101,9 @@ void NeoPixelEffects::update()
         case EMPTY:
           updateEmptyEffect();
           break;
+        case FIREWORK:
+          updateFireworkEffect();
+          break;
         default:
           break;
       }
@@ -110,30 +112,126 @@ void NeoPixelEffects::update()
   }
 }
 
+// void NeoPixelEffects::updateCometEffect()
+// {
+//   EffectColor tailcolor = {0, 0, 0};
+//
+//   for (int j = 0; j <= _pixaoe; j++) {
+//     float ratio = j / (float)_pixaoe;
+//     tailcolor.r = (int)(_effectcolor.r * ratio);
+//     tailcolor.g = (int)(_effectcolor.g * ratio);
+//     tailcolor.b = (int)(_effectcolor.b * ratio);
+//
+//     int tpx;
+//     bool showpix = true;
+//
+//     if (_direction == FORWARD) {
+//       if (_looping) {
+//         if (tpx > _pixend) {
+//           tpx = _pixstart + _pixcurrent + j - _pixend - 1;
+//         } else {
+//           tpx = _pixcurrent + j;
+//         }
+//       } else {
+//         if (tpx > _pixend) {
+//           showpix = false;
+//         } else {
+//           tpx = _pixcurrent + j;
+//         }
+//       }
+//     } else {
+//       if (_looping) {
+//         if (tpx < _pixstart) {
+//           tpx = _pixend + (_pixcurrent - j) - _pixstart + 1;
+//         } else {
+//           tpx = _pixcurrent - j;
+//         }
+//       } else {
+//         if (tpx < _pixstart) {
+//           showpix = false;
+//         } else {
+//           tpx = _pixcurrent - j;
+//         }
+//       }
+//     }
+//
+//     if (showpix) {
+//       _pix->setPixelColor(tpx, _pix->Color(tailcolor.r, tailcolor.g, tailcolor.b));
+//     }
+//   }
+//
+//   if (_direction == FORWARD) {
+//     _pixcurrent = (_pixcurrent + 1 > _pixend && _looping == true) ? _pixstart : _pixcurrent + 1;
+//     if (_pixcurrent == _pixstart && !_looping) {
+//       setEffect(NONE);
+//     }
+//   } else {
+//     _pixcurrent = (_pixcurrent - 1 < _pixstart && _looping == true) ? _pixend : _pixcurrent - 1;
+//     if (_pixcurrent == _pixend && !_looping) {
+//       setEffect(NONE);
+//     }
+//   }
+// }
+
 void NeoPixelEffects::updateCometEffect()
 {
   EffectColor tailcolor = {0, 0, 0};
 
-  for (int j = 0; j < _pixaoe; j++) {
+  for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
     tailcolor.r = (int)(_effectcolor.r * ratio);
     tailcolor.g = (int)(_effectcolor.g * ratio);
     tailcolor.b = (int)(_effectcolor.b * ratio);
 
-    int temppixel;
+    int tpx;
+    bool showpix = true;
     if (_direction == FORWARD) {
-      temppixel = (_pixcurrent + j > _pixend && _looping == true) ? _pixstart + (_pixcurrent + j) - _pixend - 1 : _pixcurrent + j;
+      if (_pixcurrent + j > _pixend) {
+        if (_looping) {
+          tpx = _pixstart + (_pixcurrent + j) - _pixend - 1;
+        } else {
+          showpix = false;
+        }
+      } else {
+        tpx = _pixcurrent + j;
+      }
     } else {
-      temppixel = (_pixcurrent - j < _pixstart && _looping == true) ? _pixend - (abs(_pixstart - (_pixcurrent - j)) + 1) : _pixcurrent - j;
+      if (_pixcurrent - j < _pixstart) {
+        if (_looping) {
+          tpx = _pixend - (abs(_pixstart - (_pixcurrent - j)) + 1);
+        } else {
+          showpix = false;
+        }
+      } else {
+        tpx = _pixcurrent - j;
+      }
     }
 
-    _pix->setPixelColor(temppixel, _pix->Color(tailcolor.r, tailcolor.g, tailcolor.b));
+    if (showpix) {
+      _pix->setPixelColor(tpx, _pix->Color(tailcolor.r, tailcolor.g, tailcolor.b));
+    }
   }
 
   if (_direction == FORWARD) {
-    _pixcurrent = (_pixcurrent + 1 > _pixend && _looping == true) ? _pixstart : _pixcurrent + 1;
+    if (_pixcurrent + 1 > _pixend) {
+      if (_looping) {
+        _pixcurrent = _pixstart;
+      } else {
+        setEffect(NONE);
+      }
+    } else {
+      _pixcurrent++;
+    }
   } else {
-    _pixcurrent = (_pixcurrent - 1 < _pixstart && _looping == true) ? _pixend : _pixcurrent - 1;
+    if (_pixcurrent - 1 < _pixstart) {
+      if (_looping) {
+        _pixcurrent = _pixend;
+      } else {
+        setEffect(NONE);
+      }
+    } else {
+      _pixcurrent--;
+    }
   }
 }
 
@@ -208,23 +306,17 @@ void NeoPixelEffects::updateFadeEffect()
   fadecolor.g = _effectcolor.g * ratio;
   fadecolor.b = _effectcolor.b * ratio;
 
+  if (_direction == FORWARD) {
+    if (count >= 100) setEffect(NONE);
+  } else {
+    if (count <= 0) setEffect(NONE);
+  }
+  count = (_direction == FORWARD) ? count + 1 : count - 1;
+
   for (int i = _pixstart; i <= _pixend; i++) {
     _pix->setPixelColor(i, _pix->Color(fadecolor.r, fadecolor.g, fadecolor.b));
   }
 
-  if (_direction == FORWARD) {
-    if (count >= 100) {
-      setEffect(NONE);
-    } else {
-      count++;
-    }
-  } else {
-    if (count <= 0) {
-      setEffect(NONE);
-    } else {
-      count--;
-    }
-  }
   // TODO Determine if we should change these private update functions to return ints
 }
 
@@ -267,27 +359,61 @@ void NeoPixelEffects::updateEmptyEffect()
 
 void NeoPixelEffects::updateFireworkEffect()
 {
-  EffectColor white = COLOR_WHITE;
-  int povtail = 4;
-  _pixcurrent = _pixend - _pixaoe / 2;
+  // Mortar
+  int m_rangeStart = _pixstart;
+  int m_rangeEnd = _pixend - _pixaoe - 4;
+  int m_areaOfEffect = 2;
+  unsigned long m_updateDelay = 25;   // millis
+  EffectColor grey = {2, 2, 2};
 
-  static NeoPixelEffects mortar = new NeoPixelEffects(_pix, COMET, _pixstart, _pixcurrent, povtail, _delay, white, false, FORWARD);
-  static NeoPixelEffects sparks_r = new NeoPixelEffects(_pix, NONE, _pixcurrent - _pixaoe / 2, _pixcurrent, povtail, _delay, _effectcolor, false, FORWARD);
-  static NeoPixelEffects sparks_f = new NeoPixelEffects(_pix, NONE, _pixcurrent, _pixcurrent + _pixaoe / 2, povtail, _delay, _effectcolor, false, FORWARD);
+  // Stars parameters
+  int stars_start = _pixend - 2 * _pixaoe - 4;
+  int stars_center = _pixend - _pixaoe - 2;
+  int stars_end = _pixend;
+  int stars_aoe = _pixaoe;
+  unsigned long stars_delay = 25;   // millis
+  EffectColor stars_orange = _effectcolor;
 
-  if (mortar.getEffect() != NONE) {
-    mortar.update();
+  // Stars Fade parameters
+  int sf_rangeStart = _pixend - 2 * _pixaoe - 4;
+  int sf_rangeEnd = _pixend;
+  unsigned long sf_updateDelay = 7;   // millis
+
+  static NeoPixelEffects *m = new NeoPixelEffects(_pix, COMET, m_rangeStart, m_rangeEnd, m_areaOfEffect, m_updateDelay, grey, false, FORWARD);
+  static NeoPixelEffects *s1 = new NeoPixelEffects(_pix, NONE, stars_start, stars_center, stars_aoe, stars_delay, stars_orange, false, REVERSE);
+  static NeoPixelEffects *s2 = new NeoPixelEffects(_pix, NONE, stars_center, stars_end, stars_aoe, stars_delay, stars_orange, false, FORWARD);
+  static NeoPixelEffects *sf = new NeoPixelEffects(_pix, NONE, sf_rangeStart, sf_rangeEnd, 1, sf_updateDelay, stars_orange, false, REVERSE);
+
+  static int justonce = 0;
+
+  if (m->getEffect() != NONE) {
+    m->update();
   } else {
-    sparks_r.initialize(COMET);
-    sparks_f.initialize(COMET);
-    if (sparks_r.getEffect() == NONE && sparks_f.getEffect() == NONE) {
-      setEffect(NONE);
+    if (s1->getEffect() == NONE && s2->getEffect() == NONE) {
+      if (justonce == 0) {
+        delay(200);
+        s1->initialize(FILL);
+        s2->initialize(FILL);
+        justonce = 1;
+      } else if (justonce == 1) {
+        delay(200);
+        sf->initialize(FADE);
+        justonce = 2;
+      } else if (justonce == 2){
+        sf->update();
+        if (sf->getEffect() == NONE) {
+          delete(m);
+          delete(s1);
+          delete(s2);
+          delete(sf);
+          setEffect(NONE);
+        }
+      }
     } else {
-      sparks_r.update();
-      sparks_f.update();
+      s1->update();
+      s2->update();
     }
   }
-
 }
 
 void NeoPixelEffects::setEffect(Effect effect)
@@ -364,5 +490,13 @@ void NeoPixelEffects::resetEffect()
   for (int i = _pixstart; i <= _pixend; i++) {
     _pix->setPixelColor(i, _pix->Color(0,0,0));
   }
-  _pixcurrent = _pixstart;
+}
+
+int NeoPixelEffects::getPixRemaining()
+{
+  if (_direction == FORWARD) {
+    return (_pixend - _pixcurrent);
+  } else {
+    return (_pixcurrent - _pixstart);
+  }
 }

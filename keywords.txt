@@ -20,6 +20,7 @@ setRange	KEYWORD2
 setLooping	KEYWORD2
 setDirection	KEYWORD2
 setAreaOfEffect	KEYWORD2
+resetEffect KEYWORD2
 
 #######################################
 # Constants

@@ -1,5 +1,5 @@
 // NeoPixel Effects library Comet effect test (c) 2015 Nolan Moore
-// released under the GPLv3 license to match the rest of the AdaFruit NeoPixel library
+// released under the GPLv3 license to match the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
 #include <Adafruit_NeoPixel.h>

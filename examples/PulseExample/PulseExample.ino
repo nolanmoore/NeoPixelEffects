@@ -28,4 +28,5 @@ void setup() {
 
 void loop() {
   effect.update();
+  FastLED.show();
 }

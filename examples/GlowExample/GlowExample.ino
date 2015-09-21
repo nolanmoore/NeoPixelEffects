@@ -40,4 +40,5 @@ void loop() {
     effect.resetEffect();
     effect.setEffect(GLOW);
   }
+  FastLED.show();
 }

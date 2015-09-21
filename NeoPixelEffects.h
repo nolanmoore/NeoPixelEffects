@@ -36,11 +36,11 @@ enum Effect {
   PULSE,
   STATIC,
   FADE,
-  FILL,
-  EMPTY,
-  SOLID,
+  FILLIN,
   GLOW,
-  FIREWORK
+  FIREWORK,
+  SPARKLEFILL,
+  RAINBOWWAVE
 };
 
 enum EffectStatus {
@@ -69,8 +69,10 @@ class NeoPixelEffects {
     void setDelayHz(int delay_hz);
     void setRepeat(bool repeat);
     void setDirection(bool direction);
-    void resetEffect();
-    // void transferPixels(CRGB *newpixelset);
+
+    void clear();
+    void fill_solid(CRGB color_crgb);
+    void fill_gradient(CRGB color_crgb1, CRGB color_crgb2);
 
   private:
     void updateCometEffect();
@@ -79,11 +81,12 @@ class NeoPixelEffects {
     void updatePulseEffect();
     void updateStaticEffect();
     void updateFadeOutEffect();
-    void updateFillEffect();
-    void updateEmptyEffect();
+    void updateFillInEffect();
     void updateSolidEffect();
     void updateGlowEffect();
     void updateFireworkEffect();
+    void updateSparkleFillEffect();
+    void updateRainbowWaveEffect();
 
     CRGB *_pixset;          // A reference to the one created in the user code
     Effect _effect;         // Your silly or awesome effect!

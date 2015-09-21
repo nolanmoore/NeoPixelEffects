@@ -68,7 +68,7 @@ void NeoPixelEffects::setEffect(Effect effect)
 
 void NeoPixelEffects::update()
 {
-  if (_effect != NONE) {
+  if (_effect != NONE || _status == ACTIVE) {
     unsigned long timenow = millis();
     if (timenow - _lastupdate > _delay) {
       _lastupdate = timenow;
@@ -91,14 +91,8 @@ void NeoPixelEffects::update()
         case FADE:
           updateFadeOutEffect();
           break;
-        case FILL:
-          updateFillEffect();
-          break;
-        case EMPTY:
-          updateEmptyEffect();
-          break;
-        case SOLID:
-          updateSolidEffect();
+        case FILLIN:
+          updateFillInEffect();
           break;
         case GLOW:
           updateGlowEffect();
@@ -106,10 +100,15 @@ void NeoPixelEffects::update()
         case FIREWORK:
           updateFireworkEffect();
           break;
+        case SPARKLEFILL:
+          updateSparkleFillEffect();
+          break;
+        case RAINBOWWAVE:
+          updateRainbowWaveEffect();
+          break;
         default:
           break;
       }
-      // FastLED.show();
     }
   }
 }
@@ -328,7 +327,7 @@ void NeoPixelEffects::updateFadeOutEffect()
   }
 }
 
-void NeoPixelEffects::updateFillEffect()
+void NeoPixelEffects::updateFillInEffect()
 {
   _pixset[_pixcurrent] = _effectcolor;
   if (_direction == FORWARD) {
@@ -344,33 +343,6 @@ void NeoPixelEffects::updateFillEffect()
       setEffect(NONE);
     }
   }
-}
-
-
-void NeoPixelEffects::updateEmptyEffect()
-{
-  _pixset[_pixcurrent] = CRGB::Black;
-  if (_direction == FORWARD) {
-    if (_pixcurrent != _pixend) {
-      _pixcurrent++;
-    } else {
-      setEffect(NONE);
-    }
-  } else {
-    if (_pixcurrent != _pixstart) {
-      _pixcurrent--;
-    } else {
-      setEffect(NONE);
-    }
-  }
-}
-
-void NeoPixelEffects::updateSolidEffect()
-{
-  for (int i = _pixstart; i <= _pixend; i++) {
-    _pixset[i] = _effectcolor;
-  }
-  setEffect(NONE);
 }
 
 void NeoPixelEffects::updateGlowEffect()
@@ -412,52 +384,55 @@ void NeoPixelEffects::updateGlowEffect()
 
 void NeoPixelEffects::updateFireworkEffect()
 {
-  // Mortar
-  int m_rangeStart = _pixstart;
-  int m_rangeEnd = _pixend - _pixaoe - 4;
-  int m_areaOfEffect = 2;
-  unsigned long m_updateDelay = 25;   // millis
-  CRGB grey = CRGB::White;
+  // static NeoPixelEffects *m = new NeoPixelEffects(_pixset, COMET, _pixstart,                  _pixend - _pixaoe - 4, 2,         25,     CRGB::White,  false, FORWARD);
+  // static NeoPixelEffects *s1 = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend - _pixaoe - 2, stars_aoe, _delay, _effectcolor, false, REVERSE);
+  // static NeoPixelEffects *s2 = new NeoPixelEffects(_pixset, NONE, _pixend - _pixaoe - 2,      stars_end,             stars_aoe, _delay, _effectcolor, false, FORWARD);
+  // static NeoPixelEffects *sf = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend,               1,         7,      _effectcolor, false, REVERSE);
+  //
+  // if (_counter == 0 && m->getEffect() == NONE) {
+  //   delay(200);
+  //   s1->setEffect(FILLIN);
+  //   s2->setEffect(FILLIN);
+  //   _counter = 1;
+  // } else if (_counter == 1 && s1->getEffect() == NONE && s2->getEffect() == NONE) {
+  //   delay(200);
+  //   sf->setEffect(FADE);
+  //   _counter = 2;
+  // } else if (_counter == 2 && sf->getEffect() == NONE) {
+  //   delete(m);
+  //   delete(s1);
+  //   delete(s2);
+  //   delete(sf);
+  //   setEffect(NONE);
+  // }
+  //
+  // m->update();
+  // s1->update();
+  // s2->update();
+  // sf->update();
+}
 
-  // Stars parameters
-  int stars_start = _pixend - 2 * _pixaoe - 4;
-  int stars_center = _pixend - _pixaoe - 2;
-  int stars_end = _pixend;
-  int stars_aoe = _pixaoe;
+void NeoPixelEffects::updateSparkleFillEffect()
+{
+  static NeoPixelEffects *sparkles = new NeoPixelEffects(_pixset, STATIC, _pixstart,  _pixstart, 1, _delay, _effectcolor, false, _direction);
 
-  // Stars Fade parameters
-  int sf_rangeStart = _pixend - 2 * _pixaoe - 4;
-  int sf_rangeEnd = _pixend;
-  unsigned long sf_updateDelay = 7;   // millis
-
-  static NeoPixelEffects *m = new NeoPixelEffects(_pixset, COMET, m_rangeStart,   m_rangeEnd, m_areaOfEffect, m_updateDelay, grey, false, FORWARD);
-  static NeoPixelEffects *s1 = new NeoPixelEffects(_pixset, NONE, stars_start,    stars_center, stars_aoe, _delay, _effectcolor, false, REVERSE);
-  static NeoPixelEffects *s2 = new NeoPixelEffects(_pixset, NONE, stars_center,   stars_end, stars_aoe, _delay, _effectcolor, false, FORWARD);
-  static NeoPixelEffects *sf = new NeoPixelEffects(_pixset, NONE, sf_rangeStart,  sf_rangeEnd, 1, sf_updateDelay, _effectcolor, false, REVERSE);
-
-  static int state = 0;
-
-  if (state == 0 && m->getEffect() == NONE) {
-    delay(200);
-    s1->setEffect(FILL);
-    s2->setEffect(FILL);
-    state = 1;
-  } else if (state == 1 && s1->getEffect() == NONE && s2->getEffect() == NONE) {
-    delay(200);
-    sf->setEffect(FADE);
-    state = 2;
-  } else if (state == 2 && sf->getEffect() == NONE) {
-    delete(m);
-    delete(s1);
-    delete(s2);
-    delete(sf);
-    setEffect(NONE);
+  sparkles->update();
+  if (_pixcurrent != _pixend) {
+    _pixcurrent++;
+    sparkles->setRange(_pixstart, _pixcurrent);
   }
+}
 
-  m->update();
-  s1->update();
-  s2->update();
-  sf->update();
+void NeoPixelEffects::updateRainbowWaveEffect()
+{
+  static uint8_t hueval = 0;
+  static float ratio = 255.0  / _pixrange;
+
+  for (int i = _pixstart; i < _pixend; i++) {
+    CRGB color = CHSV((uint8_t)((hueval + i) * ratio), 255, 255);
+    _pixset[i] = color;
+  }
+  hueval++;
 }
 
 Effect NeoPixelEffects::getEffect()
@@ -501,7 +476,6 @@ void NeoPixelEffects::setDelay(unsigned long delay_ms)
 void NeoPixelEffects::setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue)
 {
   if (color_red > -1 && color_green > -1 && color_blue > -1) {
-    // TODO determine if better to set to value mod 255 than max at 255
     _effectcolor.r = (color_red > 255) ? 255 : color_red;
     _effectcolor.g = (color_green > 255) ? 255 : color_green;
     _effectcolor.b = (color_blue > 255) ? 255 : color_blue;
@@ -528,9 +502,38 @@ void NeoPixelEffects::setDirection(bool direction)
   _direction = direction;
 }
 
-void NeoPixelEffects::resetEffect()
+void NeoPixelEffects::clear()
 {
   for (int i = _pixstart; i <= _pixend; i++) {
     _pixset[i] = CRGB::Black;
+  }
+}
+
+void NeoPixelEffects::fill_solid(CRGB color_crgb)
+{
+  // if (_status == INACTIVE) {
+  if (_effect == NONE) {
+    // fill_solid( &_pixset[_pixstart], _pixrange, color_crgb );
+    for (int i = _pixstart; i <= _pixend; i++) {
+      _pixset[i] = color_crgb;
+    }
+  }
+}
+
+void NeoPixelEffects::fill_gradient(CRGB color_crgb1, CRGB color_crgb2)
+{
+  // if (_status == INACTIVE) {
+  if (_effect == NONE) {
+    int delta_red = color_crgb1.r - color_crgb2.r;
+    int delta_green = color_crgb1.g - color_crgb2.g;
+    int delta_blue = color_crgb1.b - color_crgb2.b;
+
+    for (int i = _pixstart; i < _pixend; i++) {
+      float part = (i - _pixstart) / (_pixrange - 1);
+      uint8_t grad_red = color_crgb1.r + (color_crgb2.r * part);
+      uint8_t grad_green = color_crgb1.g + (color_crgb2.g * part);
+      uint8_t grad_blue = color_crgb1.b + (color_crgb2.b * part);
+      _pixset[i] = CRGB(grad_red, grad_green, grad_blue);
+    }
   }
 }

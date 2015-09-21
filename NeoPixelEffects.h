@@ -29,6 +29,7 @@
 #define REVERSE false
 
 enum Effect {
+  NONE,
   COMET,
   LARSON,
   CHASE,
@@ -37,8 +38,9 @@ enum Effect {
   FADE,
   FILL,
   EMPTY,
-  FIREWORK,
-  NONE
+  SOLID,
+  GLOW,
+  FIREWORK
 };
 
 enum EffectStatus {
@@ -50,7 +52,6 @@ enum EffectStatus {
 class NeoPixelEffects {
   public:
     NeoPixelEffects(CRGB *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
-    NeoPixelEffects(CRGB *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CHSV color_chsv, bool looping, bool dir);
     NeoPixelEffects();
     ~NeoPixelEffects();
 
@@ -60,12 +61,12 @@ class NeoPixelEffects {
     void setEffect(Effect effect);  // Sets effect
     EffectStatus getStatus();
     void setStatus(EffectStatus status);
-    void setColor(int color_red, int color_green, int color_blue);
+    void setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue);
     void setColor(CRGB color_crgb);
-    int setRange(int pixstart, int pixend);
-    int setAreaOfEffect(int aoe);
+    void setRange(int pixstart, int pixend);
+    void setAreaOfEffect(int aoe);
     void setDelay(unsigned long delay_ms);
-    void setDelay(int delay_hz);
+    void setDelayHz(int delay_hz);
     void setRepeat(bool repeat);
     void setDirection(bool direction);
     void resetEffect();
@@ -77,27 +78,30 @@ class NeoPixelEffects {
     void updateChaseEffect();
     void updatePulseEffect();
     void updateStaticEffect();
-    void updateFadeEffect();
+    void updateFadeOutEffect();
     void updateFillEffect();
     void updateEmptyEffect();
+    void updateSolidEffect();
+    void updateGlowEffect();
     void updateFireworkEffect();
 
-    CRGB *_pixset;  // A reference to the one created in the user code TODO is this needed?
-    Effect _effect;           // Your silly or awesome effect!
+    CRGB *_pixset;          // A reference to the one created in the user code
+    Effect _effect;         // Your silly or awesome effect!
     EffectStatus _status;
-    CRGB _effectcolor;           // Up to 2 colors used in the effects, refer to struct
+    CRGB _effectcolor;      // Up to 2 colors used in the effects, refer to struct
     int
-      _pixstart,              // First NeoPixel in range of effect
-      _pixend,                // Last NeoPixel in range of effect
-      _pixrange,              // Length of effect area
-      _pixaoe,                // The length of the effect that takes place within the range
-      _pixcurrent;
+      _pixstart,            // First NeoPixel in range of effect
+      _pixend,              // Last NeoPixel in range of effect
+      _pixrange,            // Length of effect area
+      _pixaoe,              // The length of the effect that takes place within the range
+      _pixcurrent,          // Head pixel that indicates current pixel to base effect on
+      _counter;
     bool
-      _repeat,               // Whether or not the effect loops in area
-      _direction;               // Whether or not the effect moves from start to end pixel
+      _repeat,              // Whether or not the effect loops in area
+      _direction;           // Whether or not the effect moves from start to end pixel
     unsigned long
-      _lastupdate,            // Last update time, in milliseconds since sys reboot
-      _delay;                 // Period at which effect should update, in milliseconds
+      _lastupdate,          // Last update time, in milliseconds since sys reboot
+      _delay;               // Period at which effect should update, in milliseconds
 };
 
 #endif

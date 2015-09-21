@@ -2,30 +2,31 @@
 // released under the GPLv3 license to match the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
 
-#define PIN            A0
-#define NUMPIXELS      144
+#define DATA_PIN            A0
+#define NUM_LEDS       64
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+CRGB leds[NUM_LEDS];
 
-// Firework parameters - currently unable to modify mortar params
+// Firework stars parameters - currently unable to modify mortar params
 Effect effectType = FIREWORK; // Effect
 int rangeStart = 0;
-int rangeEnd = 61;
+int rangeEnd = NUM_LEDS - 1;
 int stars_aoe = 7;
 unsigned long updateDelay = 25; // millis
 bool m_looping = false;         // Currently unused, auto-noloop
 bool m_dir = FORWARD;           // Currently unused, auto-forward
-EffectColor stars_orange = {200, 133, 0};
+CRGB stars_orange = CRGB{200, 133, 0};
 
-NeoPixelEffects fw = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, stars_aoe, updateDelay, stars_orange, m_looping, m_dir);
+NeoPixelEffects fw = NeoPixelEffects(leds, effectType, rangeStart, rangeEnd, stars_aoe, updateDelay, stars_orange, m_looping, m_dir);
 
 void setup() {
-  pixels.begin();
+  FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS);
+
   Serial.begin(9600);
 }
 

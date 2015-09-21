@@ -21,24 +21,13 @@
 
 #include <NeoPixelEffects.h>
 
-NeoPixelEffects::NeoPixelEffects(CRGB *ledset, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CHSV color_chsv, bool repeat, bool dir) :
-  _pixset(ledset), _repeat(repeat), _direction(dir)
+NeoPixelEffects::NeoPixelEffects(CRGB *ledset, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool repeat, bool dir) :
+  _pixset(ledset), _effectcolor(color_crgb), _repeat(repeat), _direction(dir), _counter(0)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
   setDelay(delay);
-  setColor(color_chsv);
-  initialize(effect);
-}
-
-NeoPixelEffects::NeoPixelEffects(CRGB *ledset, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_effectcolor, bool repeat, bool dir) :
-  _pixset(ledset), _repeat(repeat), _direction(dir)
-{
-  setRange(pixstart, pixend);
-  setAreaOfEffect(aoe);
-  setDelay(delay);
-  setColor(color_effectcolor);
-  initialize(effect);
+  setEffect(effect);
 }
 
 NeoPixelEffects::NeoPixelEffects()
@@ -51,6 +40,7 @@ NeoPixelEffects::NeoPixelEffects()
   _pixrange = 1;
   _pixaoe = 1;
   _pixcurrent = _pixstart;
+  _counter = 0;
   _delay = 0;
   _lastupdate = 0;
   _effectcolor = CRGB::Black;
@@ -63,14 +53,16 @@ NeoPixelEffects::~NeoPixelEffects()
   *_pixset = NULL;
 }
 
-void NeoPixelEffects::initialize(Effect effect)
+void NeoPixelEffects::setEffect(Effect effect)
 {
   _effect = effect;
   _lastupdate = millis();
   if (_direction == FORWARD) {
     _pixcurrent = _pixstart;
+    _counter = 0;
   } else {
     _pixcurrent = _pixend;
+    _counter = 100;
   }
 }
 
@@ -97,7 +89,7 @@ void NeoPixelEffects::update()
           updateStaticEffect();
           break;
         case FADE:
-          updateFadeEffect();
+          updateFadeOutEffect();
           break;
         case FILL:
           updateFillEffect();
@@ -105,13 +97,19 @@ void NeoPixelEffects::update()
         case EMPTY:
           updateEmptyEffect();
           break;
+        case SOLID:
+          updateSolidEffect();
+          break;
+        case GLOW:
+          updateGlowEffect();
+          break;
         case FIREWORK:
           updateFireworkEffect();
           break;
         default:
           break;
       }
-      FastLED.show();
+      // FastLED.show();
     }
   }
 }
@@ -122,9 +120,9 @@ void NeoPixelEffects::updateCometEffect()
 
   for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
-    tailcolor.r = (int)(_effectcolor.r * ratio);
-    tailcolor.g = (int)(_effectcolor.g * ratio);
-    tailcolor.b = (int)(_effectcolor.b * ratio);
+    tailcolor.r = (uint8_t)(_effectcolor.r * ratio);
+    tailcolor.g = (uint8_t)(_effectcolor.g * ratio);
+    tailcolor.b = (uint8_t)(_effectcolor.b * ratio);
 
     int tpx;
     bool showpix = true;
@@ -184,9 +182,9 @@ void NeoPixelEffects::updateLarsonEffect()
 
   for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
-    tailcolor.r = (int)(_effectcolor.r * ratio);
-    tailcolor.g = (int)(_effectcolor.g * ratio);
-    tailcolor.b = (int)(_effectcolor.b * ratio);
+    tailcolor.r = _effectcolor.r * ratio;
+    tailcolor.g = _effectcolor.g * ratio;
+    tailcolor.b = _effectcolor.b * ratio;
 
     int tpx;
     bool showpix = true;
@@ -250,19 +248,19 @@ void NeoPixelEffects::updateChaseEffect()
 void NeoPixelEffects::updatePulseEffect()
 {
   CRGB pulsecolor;
-  static int count = 0;
 
-  float ratio = count / 100.0;
+  float ratio = _counter / 100.0;
   pulsecolor.r = _effectcolor.r * ratio;
   pulsecolor.g = _effectcolor.g * ratio;
   pulsecolor.b = _effectcolor.b * ratio;
 
   if (_direction == FORWARD) {
-    if (count >= 100) setDirection(REVERSE);
+    _counter++;
+    if (_counter >= 100) setDirection(REVERSE);
   } else {
-    if (count <= 0) setDirection(FORWARD);
+    _counter--;
+    if (_counter <= 0) setDirection(FORWARD);
   }
-  count = (_direction == FORWARD) ? count + 1 : count - 1;
 
   for (int i = _pixstart; i <= _pixend; i++) {
     _pixset[i] = pulsecolor;
@@ -284,25 +282,48 @@ void NeoPixelEffects::updateStaticEffect()
  *  Does not utilize AOE, CURR, LOOP
  */
 
-void NeoPixelEffects::updateFadeEffect()
+// void NeoPixelEffects::updateFadeEffect()
+// {
+//   // TODO use pointers for counters and other static vars like ratio instead of statics
+//   CRGB fadecolor;
+//   static int count = (_direction == FORWARD) ? 0 : 100;
+//
+//   float ratio = count / 100.0;
+//   fadecolor.r = _effectcolor.r * ratio;
+//   fadecolor.g = _effectcolor.g * ratio;
+//   fadecolor.b = _effectcolor.b * ratio;
+//
+//   if (_direction == FORWARD) {
+//     count++;
+//     if (count >= 100) setEffect(NONE);
+//   } else {
+//     count--;
+//     if (count <= 0) setEffect(NONE);
+//   }
+//
+//   for (int i = _pixstart; i <= _pixend; i++) {
+//     _pixset[i] = fadecolor;
+//   }
+// }
+
+void NeoPixelEffects::updateFadeOutEffect()
 {
   // TODO use pointers for counters and other static vars like ratio instead of statics
   CRGB fadecolor;
-  static int count = (_direction == FORWARD) ? 0 : 100;
 
-  float ratio = count / 100.0;
-  fadecolor.r = _effectcolor.r * ratio;
-  fadecolor.g = _effectcolor.g * ratio;
-  fadecolor.b = _effectcolor.b * ratio;
+  float ratio = _counter / 100.0;
 
-  if (_direction == FORWARD) {
-    if (count >= 100) setEffect(NONE);
+  if (_counter <= 0) {
+    _counter = 100;
+    setEffect(NONE);
   } else {
-    if (count <= 0) setEffect(NONE);
+    _counter--;
   }
-  count = (_direction == FORWARD) ? count + 1 : count - 1;
 
   for (int i = _pixstart; i <= _pixend; i++) {
+    fadecolor.r = _pixset[i].r * ratio;
+    fadecolor.g = _pixset[i].g * ratio;
+    fadecolor.b = _pixset[i].b * ratio;
     _pixset[i] = fadecolor;
   }
 }
@@ -344,6 +365,51 @@ void NeoPixelEffects::updateEmptyEffect()
   }
 }
 
+void NeoPixelEffects::updateSolidEffect()
+{
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pixset[i] = _effectcolor;
+  }
+  setEffect(NONE);
+}
+
+void NeoPixelEffects::updateGlowEffect()
+{
+  CRGB glowcolor;
+
+  float ratio = _counter / 100.0;
+  glowcolor.r = _effectcolor.r * ratio;
+  glowcolor.g = _effectcolor.g * ratio;
+  glowcolor.b = _effectcolor.b * ratio;
+
+  if (_direction == FORWARD) {
+    _counter++;
+    if (_counter >= 100) setDirection(REVERSE);
+  } else {
+    _counter--;
+    if (_counter <= 0) {
+      setDirection(FORWARD);
+      if (!_repeat) {
+        setEffect(NONE);
+      }
+    }
+  }
+
+  int glow_area_half = (_pixrange - _pixaoe) / 2;
+  for (int i = 0; i < glow_area_half ; i++) {
+    _pixset[i].r = glowcolor.r * i / glow_area_half;
+    _pixset[i].g = glowcolor.g * i / glow_area_half;
+    _pixset[i].b = glowcolor.b * i / glow_area_half;
+  }
+  _pixset[_pixstart + glow_area_half] = glowcolor;
+  _pixset[_pixstart + glow_area_half + 1] = glowcolor;
+  for (int i = glow_area_half - 1; i >= 0 ; i--) {
+    _pixset[_pixend - i].r = glowcolor.r * i / glow_area_half;
+    _pixset[_pixend - i].g = glowcolor.g * i / glow_area_half;
+    _pixset[_pixend - i].b = glowcolor.b * i / glow_area_half;
+  }
+}
+
 void NeoPixelEffects::updateFireworkEffect()
 {
   // Mortar
@@ -369,42 +435,29 @@ void NeoPixelEffects::updateFireworkEffect()
   static NeoPixelEffects *s2 = new NeoPixelEffects(_pixset, NONE, stars_center,   stars_end, stars_aoe, _delay, _effectcolor, false, FORWARD);
   static NeoPixelEffects *sf = new NeoPixelEffects(_pixset, NONE, sf_rangeStart,  sf_rangeEnd, 1, sf_updateDelay, _effectcolor, false, REVERSE);
 
-  static int justonce = 0;
+  static int state = 0;
 
-  if (m->getEffect() != NONE) {
-    m->update();
-  } else {
-    if (s1->getEffect() == NONE && s2->getEffect() == NONE) {
-      if (justonce == 0) {
-        delay(200);
-        s1->initialize(FILL);
-        s2->initialize(FILL);
-        justonce = 1;
-      } else if (justonce == 1) {
-        delay(200);
-        sf->initialize(FADE);
-        justonce = 2;
-      } else if (justonce == 2){
-        sf->update();
-        if (sf->getEffect() == NONE) {
-          delete(m);
-          delete(s1);
-          delete(s2);
-          delete(sf);
-          setEffect(NONE);
-        }
-      }
-    } else {
-      s1->update();
-      s2->update();
-    }
+  if (state == 0 && m->getEffect() == NONE) {
+    delay(200);
+    s1->setEffect(FILL);
+    s2->setEffect(FILL);
+    state = 1;
+  } else if (state == 1 && s1->getEffect() == NONE && s2->getEffect() == NONE) {
+    delay(200);
+    sf->setEffect(FADE);
+    state = 2;
+  } else if (state == 2 && sf->getEffect() == NONE) {
+    delete(m);
+    delete(s1);
+    delete(s2);
+    delete(sf);
+    setEffect(NONE);
   }
-}
 
-void NeoPixelEffects::setEffect(Effect effect)
-{
-  _effect = effect;
-  NeoPixelEffects::update();
+  m->update();
+  s1->update();
+  s2->update();
+  sf->update();
 }
 
 Effect NeoPixelEffects::getEffect()
@@ -412,31 +465,28 @@ Effect NeoPixelEffects::getEffect()
   return _effect;
 }
 
-int NeoPixelEffects::setRange(int pixstart, int pixend)
+void NeoPixelEffects::setRange(int pixstart, int pixend)
 {
   if (pixstart >= 0 && pixstart <= pixend && pixend < FastLED.size()) {
     _pixstart = pixstart;
     _pixend = pixend;
     _pixrange = _pixend - _pixstart + 1;
-    return 1;
+  }
+  if (_direction == FORWARD) {
+    _pixcurrent = _pixstart;
   } else {
-    // Arguments out of range
-    return 0;
+    _pixcurrent = _pixend;
   }
 }
 
-int NeoPixelEffects::setAreaOfEffect(int aoe)
+void NeoPixelEffects::setAreaOfEffect(int aoe)
 {
   if (aoe > 0 && aoe <= _pixrange) {
     _pixaoe = aoe;
-    return 1;
-  } else {
-    // Arguments out of range
-    return 0;
   }
 }
 
-void NeoPixelEffects::setDelay(int delay_hz)
+void NeoPixelEffects::setDelayHz(int delay_hz)
 {
   if (delay_hz > 0) {
     _delay = (unsigned long)(1.0 / delay_hz * 1000);
@@ -448,7 +498,7 @@ void NeoPixelEffects::setDelay(unsigned long delay_ms)
   _delay = delay_ms;
 }
 
-void NeoPixelEffects::setColor(int color_red, int color_green, int color_blue)
+void NeoPixelEffects::setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue)
 {
   if (color_red > -1 && color_green > -1 && color_blue > -1) {
     // TODO determine if better to set to value mod 255 than max at 255

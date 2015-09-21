@@ -2,28 +2,27 @@
 // released under the GPLv3 license to match the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
 
-#define PIN            A0
-#define NUMPIXELS      144
+#define DATA_PIN            A0
+#define NUM_LEDS            32
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+CRGB leds[NUM_LEDS];
 
 Effect effectType = STATIC;  // Effect
 int rangeStart = 0;          // # pixel (> 0 and < NUMPIXELS - 2)
-int rangeEnd = 15;           // # pixel (> 1 and < NUMPIXELS - 1)
-unsigned long updateDelay = 100;   // millis
-bool looping = true;         // boolean value
-bool dir = FORWARD;    // FORWARD (true) or REVERSE (false)
-EffectColor grey = {75, 75, 75};
+int rangeEnd = NUM_LEDS - 1;           // # pixel (> 1 and < NUMPIXELS - 1)
+unsigned long updateDelay = 500;   // millis
+CRGB grey = CRGB(75, 75, 75);
 
-NeoPixelEffects effect = NeoPixelEffects(&pixels, effectType, rangeStart, rangeEnd, 1, updateDelay, grey, looping, dir);
+NeoPixelEffects effect = NeoPixelEffects(leds, effectType, rangeStart, rangeEnd, 1, updateDelay, grey, true, true);
 
 void setup() {
-  pixels.begin();
+  FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS);
+
   Serial.begin(9600);
 }
 

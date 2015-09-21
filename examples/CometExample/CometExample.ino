@@ -2,58 +2,42 @@
 // released under the GPLv3 license to match the AdaFruit NeoPixel library
 
 #include "NeoPixelEffects.h"
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
 
-#define PIN            A0
-#define NUMPIXELS      144
+#define DATA_PIN      A0
+#define NUM_LEDS      144
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+CRGB leds[NUM_LEDS];
 
-// Mortar
-Effect m_effectType = COMET;  // Effect
-int m_rangeStart = 0;         // # pixel (> 0 and < NUMPIXELS - 2)
-int m_rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
-int m_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
-unsigned long m_updateDelay = 25;   // millis
-bool m_looping = false;        // boolean value
-bool m_dir = FORWARD;    // FORWARD (true) or REVERSE (false)
-EffectColor grey = {50, 50, 50};
+Effect effect_type = COMET;
+int aoe = 8;
+unsigned long delay_ms = 25;
+bool set_repeat = true;
+bool set_direction = FORWARD;
 
-// Sparks 1
-Effect s1_effectType = NONE;  // Effect
-int s1_rangeStart = 47;         // # pixel (> 0 and < NUMPIXELS - 2)
-int s1_rangeEnd = 35;          // # pixel (> 1 and < NUMPIXELS - 1)
-int s1_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
-unsigned long s1_updateDelay = 25;   // millis
-bool s1_looping = false;        // boolean value
-bool s1_dir = REVERSE;    // FORWARD (true) or REVERSE (false)
-EffectColor orange = {150, 100, 0};
+int effect1_start = 0;
+int effect1_end = 47;
 
-// Sparks 2
-Effect s2_effectType = NONE;  // Effect
-int s2_rangeStart = 59;         // # pixel (> 0 and < NUMPIXELS - 2)
-int s2_rangeEnd = 47;          // # pixel (> 1 and < NUMPIXELS - 1)
-int s2_areaOfEffect = 6;       // # pixels (> 0 and < rangeEnd - rangeStart)
-unsigned long s2_updateDelay = 25;   // millis
-bool s2_looping = false;        // boolean value
-bool s2_dir = FORWARD;    // FORWARD (true) or REVERSE (false)
+int effect2_start = 48;
+int effect2_end = 95;
 
-NeoPixelEffects m = NeoPixelEffects(&pixels, m_effectType, m_rangeStart, m_rangeEnd, m_areaOfEffect, m_updateDelay, grey, m_looping, m_dir);
-NeoPixelEffects s1 = NeoPixelEffects(&pixels, s1_effectType, s1_rangeStart, s1_rangeEnd, s1_areaOfEffect, s1_updateDelay, orange, s1_looping, s1_dir);
-NeoPixelEffects s2 = NeoPixelEffects(&pixels, s2_effectType, s2_rangeStart, s2_rangeEnd, s2_areaOfEffect, s2_updateDelay, orange, s2_looping, s2_dir);
+int effect3_start = 96;
+int effect3_end = 143;
+
+NeoPixelEffects effect1 = NeoPixelEffects(leds, effect_type, effect1_start, effect1_end, aoe, delay_ms, CRGB::Magenta, set_repeat, set_direction);
+NeoPixelEffects effect2 = NeoPixelEffects(leds, effect_type, effect2_start, effect2_end, aoe, delay_ms, CRGB::Yellow, set_repeat, set_direction);
+NeoPixelEffects effect3 = NeoPixelEffects(leds, effect_type, effect3_start, effect3_end, aoe, delay_ms, CRGB::Cyan, set_repeat, set_direction);
 
 void setup() {
-  pixels.begin();
-  Serial.begin(9600);
+  FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS);
 }
 
 void loop() {
-  if (!m.getEffect() == NONE) {
-    m.update()
-  } else {
-    
-  }
+  effect1.update();
+  effect2.update();
+  effect3.update();
+  FastLED.show();
 }

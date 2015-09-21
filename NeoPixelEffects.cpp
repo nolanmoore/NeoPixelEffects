@@ -442,7 +442,7 @@ Effect NeoPixelEffects::getEffect()
 
 void NeoPixelEffects::setRange(int pixstart, int pixend)
 {
-  if (pixstart >= 0 && pixstart <= pixend && pixend < FastLED.size()) {
+  if (pixstart >= 0 && pixstart <= pixend) {
     _pixstart = pixstart;
     _pixend = pixend;
     _pixrange = _pixend - _pixstart + 1;
@@ -507,13 +507,13 @@ void NeoPixelEffects::clear()
   for (int i = _pixstart; i <= _pixend; i++) {
     _pixset[i] = CRGB::Black;
   }
+  setEffect(NONE);
+  setStatus(INACTIVE);
 }
 
 void NeoPixelEffects::fill_solid(CRGB color_crgb)
 {
-  // if (_status == INACTIVE) {
-  if (_effect == NONE) {
-    // fill_solid( &_pixset[_pixstart], _pixrange, color_crgb );
+  if (_effect == NONE || _status == INACTIVE) {
     for (int i = _pixstart; i <= _pixend; i++) {
       _pixset[i] = color_crgb;
     }
@@ -522,17 +522,16 @@ void NeoPixelEffects::fill_solid(CRGB color_crgb)
 
 void NeoPixelEffects::fill_gradient(CRGB color_crgb1, CRGB color_crgb2)
 {
-  // if (_status == INACTIVE) {
-  if (_effect == NONE) {
+  if (_effect == NONE || _status == INACTIVE) {
     int delta_red = color_crgb1.r - color_crgb2.r;
     int delta_green = color_crgb1.g - color_crgb2.g;
     int delta_blue = color_crgb1.b - color_crgb2.b;
 
-    for (int i = _pixstart; i < _pixend; i++) {
-      float part = (i - _pixstart) / (_pixrange - 1);
-      uint8_t grad_red = color_crgb1.r + (color_crgb2.r * part);
-      uint8_t grad_green = color_crgb1.g + (color_crgb2.g * part);
-      uint8_t grad_blue = color_crgb1.b + (color_crgb2.b * part);
+    for (int i = _pixstart; i <= _pixend; i++) {
+      float part = (float)(i - _pixstart) / _pixrange;
+      uint8_t grad_red = color_crgb1.r - (delta_red * part);
+      uint8_t grad_green = color_crgb1.g - (delta_green * part);
+      uint8_t grad_blue = color_crgb1.b - (delta_blue * part);
       _pixset[i] = CRGB(grad_red, grad_green, grad_blue);
     }
   }

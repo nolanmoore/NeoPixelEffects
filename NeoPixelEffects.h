@@ -41,8 +41,9 @@ enum Effect {
   // FIREWORK,
   // SPARKLEFILL,
   RAINBOWWAVE,
-  // STROBE,
-  INVERSELARSON,
+  STROBE,
+  SINEWAVE,
+  // INVERSELARSON,
   NUM_EFFECT
 };
 
@@ -91,7 +92,8 @@ class NeoPixelEffects {
     // void updateFireworkEffect();
     // void updateSparkleFillEffect();
     void updateRainbowWaveEffect();
-    // void updateStrobeEffect();
+    void updateStrobeEffect();
+    void updateSineWaveEffect();
 
     // AssociatedEffects* createAssocEffect(CRGB pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
 

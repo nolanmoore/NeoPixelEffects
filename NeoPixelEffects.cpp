@@ -112,6 +112,12 @@ void NeoPixelEffects::update()
         case RAINBOWWAVE:
           updateRainbowWaveEffect();
           break;
+        case STROBE:
+          updateStrobeEffect();
+          break;
+        case SINEWAVE:
+          updateSineWaveEffect();
+          break;
         default:
           break;
       }
@@ -125,9 +131,9 @@ void NeoPixelEffects::updateCometEffect()
 
   for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
-    tailcolor.r = (uint8_t)(_effectcolor.r * ratio);
-    tailcolor.g = (uint8_t)(_effectcolor.g * ratio);
-    tailcolor.b = (uint8_t)(_effectcolor.b * ratio);
+    tailcolor.r = _effectcolor.r * ratio;
+    tailcolor.g = _effectcolor.g * ratio;
+    tailcolor.b = _effectcolor.b * ratio;
 
     int tpx;
     bool showpix = true;
@@ -231,23 +237,26 @@ void NeoPixelEffects::updateLarsonEffect()
 
 void NeoPixelEffects::updateChaseEffect()
 {
-  static bool even = true;
   for (int j = _pixstart; j <= _pixend; j++) {
-    if (even) {
+    if (_counter % 2 == 0) {
       if (j % 2 == 0) {
+        // TODO show foreground color
         _pixset[j] = _effectcolor;
       } else {
+        // TODO show background color
         _pixset[j] = CRGB::Black;
       }
     } else {
       if (j % 2 == 0) {
+        // TODO show background color
         _pixset[j] = CRGB::Black;
       } else {
+        // TODO show foreground color
         _pixset[j] = _effectcolor;
       }
     }
   }
-  even = !even;
+  _counter++;
 }
 
 void NeoPixelEffects::updatePulseEffect()
@@ -448,8 +457,9 @@ void NeoPixelEffects::updateGlowEffect()
 
 void NeoPixelEffects::updateRainbowWaveEffect()
 {
-  // TODO resets for some reason
+  // TODO resets for some reason (does it?)
   // TODO consider hueval and it's static properties
+  // OR... leave it like this
   static uint8_t hueval = 0;
   static float ratio = 255.0  / _pixrange;
 
@@ -458,6 +468,36 @@ void NeoPixelEffects::updateRainbowWaveEffect()
     _pixset[i] = color;
   }
   hueval++;
+}
+
+void NeoPixelEffects::updateStrobeEffect()
+{
+  CRGB strobecolor;
+  if (_counter % 2 == 0) {
+    // TODO show foreground color
+    strobecolor = _effectcolor;
+  } else {
+    // TODO show background color
+    strobecolor = CRGB::Black;
+  }
+
+  for (int j = _pixstart; j <= _pixend; j++) {
+    _pixset[j] = strobecolor;
+  }
+  _counter++;
+}
+
+void NeoPixelEffects::updateSineWaveEffect()
+{
+  CRGB wavecolor;
+  for (int i = _pixstart; i <= _pixend; i++) {
+    float ratio = sin8(_counter + (i - _pixstart) * 255 / _pixrange) / 255.0;
+    wavecolor.r = _effectcolor.r * ratio;
+    wavecolor.g = _effectcolor.g * ratio;
+    wavecolor.b = _effectcolor.b * ratio;
+    _pixset[i] = wavecolor;
+  }
+  _counter = (_direction) ? _counter + 1 : _counter - 1;
 }
 
 Effect NeoPixelEffects::getEffect()

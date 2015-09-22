@@ -38,15 +38,19 @@ enum Effect {
   FADE,
   FILLIN,
   GLOW,
-  FIREWORK,
-  SPARKLEFILL,
-  RAINBOWWAVE
+  // FIREWORK,
+  // SPARKLEFILL,
+  RAINBOWWAVE,
+  // STROBE,
+  INVERSELARSON,
+  NUM_EFFECT
 };
 
 enum EffectStatus {
   ACTIVE,
   PAUSED,
-  INACTIVE
+  INACTIVE,
+  NUM_EFFECTSTATUS
 };
 
 class NeoPixelEffects {
@@ -84,9 +88,12 @@ class NeoPixelEffects {
     void updateFillInEffect();
     void updateSolidEffect();
     void updateGlowEffect();
-    void updateFireworkEffect();
-    void updateSparkleFillEffect();
+    // void updateFireworkEffect();
+    // void updateSparkleFillEffect();
     void updateRainbowWaveEffect();
+    // void updateStrobeEffect();
+
+    // AssociatedEffects* createAssocEffect(CRGB pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
 
     CRGB *_pixset;          // A reference to the one created in the user code
     Effect _effect;         // Your silly or awesome effect!
@@ -98,13 +105,21 @@ class NeoPixelEffects {
       _pixrange,            // Length of effect area
       _pixaoe,              // The length of the effect that takes place within the range
       _pixcurrent,          // Head pixel that indicates current pixel to base effect on
-      _counter;
+      _counter,
+      _type;
     bool
       _repeat,              // Whether or not the effect loops in area
       _direction;           // Whether or not the effect moves from start to end pixel
     unsigned long
       _lastupdate,          // Last update time, in milliseconds since sys reboot
       _delay;               // Period at which effect should update, in milliseconds
+    // AssociatedEffects *assoc_effects;
+    // AssociatedEffects *aeptr;
 };
+
+// struct AssociatedEffects {
+//   NeoPixelEffects effect;
+//   AssociatedEffects *next;
+// };
 
 #endif

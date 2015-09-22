@@ -116,7 +116,7 @@ void NeoPixelEffects::update()
           updateStrobeEffect();
           break;
         case SINEWAVE:
-          updateSineWaveEffect();
+          updateSineWaveEffect(0);
           break;
         default:
           break;
@@ -487,11 +487,16 @@ void NeoPixelEffects::updateStrobeEffect()
   _counter++;
 }
 
-void NeoPixelEffects::updateSineWaveEffect()
+void NeoPixelEffects::updateSineWaveEffect(int wavetype)
 {
   CRGB wavecolor;
   for (int i = _pixstart; i <= _pixend; i++) {
-    float ratio = sin8(_counter + (i - _pixstart) * 255 / _pixrange) / 255.0;
+    float ratio;
+    if (!wavetype) {
+      ratio = sin8(_counter + (i - _pixstart) * 200 / _pixrange) / 255.0;
+    } else {
+      ratio = triwave8(_counter + (i - _pixstart) * 200 / _pixrange) / 255.0;
+    }
     wavecolor.r = _effectcolor.r * ratio;
     wavecolor.g = _effectcolor.g * ratio;
     wavecolor.b = _effectcolor.b * ratio;

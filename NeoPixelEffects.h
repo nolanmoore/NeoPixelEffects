@@ -93,7 +93,7 @@ class NeoPixelEffects {
     // void updateSparkleFillEffect();
     void updateRainbowWaveEffect();
     void updateStrobeEffect();
-    void updateSineWaveEffect();
+    void updateSineWaveEffect(int wavetype);
 
     // AssociatedEffects* createAssocEffect(CRGB pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
 

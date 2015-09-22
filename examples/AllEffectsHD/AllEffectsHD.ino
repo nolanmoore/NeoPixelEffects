@@ -11,22 +11,25 @@
 #define NUM_LEDS      143
 
 CRGB leds[NUM_LEDS];
-CRGB color_val;
-
-int hue = 0;
 
 unsigned long delay_ms = 50;
-bool dir = FORWARD;
+bool dir = REVERSE;
 bool state_e5 = true;
 bool state_e6 = true;
 
+CRGB color_val;
+
 NeoPixelEffects effects[9];
+
+CRGB gradhue1 = CHSV(0, 255, 255);
+CRGB gradhue2 = CHSV(128, 255, 255);
 
 void setup() {
   FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS);
 
+  int hue = 0;
   color_val.setHue(hue);
-  effects[0] = NeoPixelEffects(leds, CHASE, 0, 15, 1, delay_ms, color_val, true, dir);
+  effects[0] = NeoPixelEffects(leds, SINEWAVE, 0, 15, 1, 5, color_val, true, dir);
   hue += 32;
   color_val.setHue(hue);
   effects[1] = NeoPixelEffects(leds, COMET, 16, 31, 8, delay_ms, color_val, true, dir);

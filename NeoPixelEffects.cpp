@@ -22,7 +22,7 @@
 #include <NeoPixelEffects.h>
 
 NeoPixelEffects::NeoPixelEffects(CRGB *ledset, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool repeat, bool dir) :
-  _pixset(ledset), _effectcolor(color_crgb), _repeat(repeat), _direction(dir), _counter(0)
+  _pixset(ledset), _color_fg(color_crgb), _color_bg(CRGB::Black), _repeat(repeat), _direction(dir), _counter(0), _subtype(0)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
@@ -42,21 +42,18 @@ NeoPixelEffects::NeoPixelEffects()
   _pixaoe = 1;
   _pixcurrent = _pixstart;
   _counter = 0;
-  _type = 0;
+  _subtype = 0;
   _delay = 0;
   _lastupdate = 0;
-  _effectcolor = CRGB::Black;
+  _color_fg = CRGB::Black;
+  _color_bg = CRGB::Black;
   _repeat = true;
   _direction = FORWARD;
-  // *assoc_effects = NULL;
-  // *aeptr = NULL;
 }
 
 NeoPixelEffects::~NeoPixelEffects()
 {
   *_pixset = NULL;
-  // *assoc_effects = NULL;
-  // *aeptr = NULL;
 }
 
 void NeoPixelEffects::setEffect(Effect effect)
@@ -131,9 +128,9 @@ void NeoPixelEffects::updateCometEffect()
 
   for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
-    tailcolor.r = _effectcolor.r * ratio;
-    tailcolor.g = _effectcolor.g * ratio;
-    tailcolor.b = _effectcolor.b * ratio;
+    tailcolor.r = _color_fg.r * ratio;
+    tailcolor.g = _color_fg.g * ratio;
+    tailcolor.b = _color_fg.b * ratio;
 
     int tpx;
     bool showpix = true;
@@ -189,13 +186,13 @@ void NeoPixelEffects::updateCometEffect()
 
 void NeoPixelEffects::updateLarsonEffect()
 {
-  CRGB tailcolor = CRGB::Black;
+  CRGB tailcolor;
 
   for (int j = 0; j <= _pixaoe; j++) {
     float ratio = j / (float)_pixaoe;
-    tailcolor.r = _effectcolor.r * ratio;
-    tailcolor.g = _effectcolor.g * ratio;
-    tailcolor.b = _effectcolor.b * ratio;
+    tailcolor.r = _color_fg.r * ratio;
+    tailcolor.g = _color_fg.g * ratio;
+    tailcolor.b = _color_fg.b * ratio;
 
     int tpx;
     bool showpix = true;
@@ -241,18 +238,18 @@ void NeoPixelEffects::updateChaseEffect()
     if (_counter % 2 == 0) {
       if (j % 2 == 0) {
         // TODO show foreground color
-        _pixset[j] = _effectcolor;
+        _pixset[j] = _color_fg;
       } else {
         // TODO show background color
-        _pixset[j] = CRGB::Black;
+        _pixset[j] = _color_bg;
       }
     } else {
       if (j % 2 == 0) {
         // TODO show background color
-        _pixset[j] = CRGB::Black;
+        _pixset[j] = _color_bg;
       } else {
         // TODO show foreground color
-        _pixset[j] = _effectcolor;
+        _pixset[j] = _color_fg;
       }
     }
   }
@@ -264,9 +261,9 @@ void NeoPixelEffects::updatePulseEffect()
   CRGB pulsecolor;
 
   float ratio = _counter / 100.0;
-  pulsecolor.r = _effectcolor.r * ratio;
-  pulsecolor.g = _effectcolor.g * ratio;
-  pulsecolor.b = _effectcolor.b * ratio;
+  pulsecolor.r = _color_fg.r * ratio;
+  pulsecolor.g = _color_fg.g * ratio;
+  pulsecolor.b = _color_fg.b * ratio;
 
   if (_direction == FORWARD) {
     _counter++;
@@ -283,42 +280,13 @@ void NeoPixelEffects::updatePulseEffect()
 
 void NeoPixelEffects::updateStaticEffect()
 {
-  random16_add_entropy(random());
-  CRGB staticcolor;
+  random16_add_entropy(random(65535));
+
   for (int i = _pixstart; i <= _pixend; i++) {
     float random_ratio = random8(101) / 100.0;
-    _pixset[i].setRGB(_effectcolor.r * random_ratio, _effectcolor.g * random_ratio, _effectcolor.b * random_ratio);
+    _pixset[i].setRGB(_color_fg.r * random_ratio, _color_fg.g * random_ratio, _color_fg.b * random_ratio);
   }
 }
-
-/*
- *  updateFadeEffect
- *  Does not utilize AOE, CURR, LOOP
- */
-
-// void NeoPixelEffects::updateFadeEffect()
-// {
-//   // TODO use pointers for counters and other static vars like ratio instead of statics
-//   CRGB fadecolor;
-//   static int count = (_direction == FORWARD) ? 0 : 100;
-//
-//   float ratio = count / 100.0;
-//   fadecolor.r = _effectcolor.r * ratio;
-//   fadecolor.g = _effectcolor.g * ratio;
-//   fadecolor.b = _effectcolor.b * ratio;
-//
-//   if (_direction == FORWARD) {
-//     count++;
-//     if (count >= 100) setEffect(NONE);
-//   } else {
-//     count--;
-//     if (count <= 0) setEffect(NONE);
-//   }
-//
-//   for (int i = _pixstart; i <= _pixend; i++) {
-//     _pixset[i] = fadecolor;
-//   }
-// }
 
 void NeoPixelEffects::updateFadeOutEffect()
 {
@@ -344,7 +312,7 @@ void NeoPixelEffects::updateFadeOutEffect()
 
 void NeoPixelEffects::updateFillInEffect()
 {
-  _pixset[_pixcurrent] = _effectcolor;
+  _pixset[_pixcurrent] = _color_fg;
   if (_direction == FORWARD) {
     if (_pixcurrent != _pixend) {
       _pixcurrent++;
@@ -367,9 +335,9 @@ void NeoPixelEffects::updateGlowEffect()
   CRGB glowcolor;
 
   float ratio = _counter / 100.0;
-  glowcolor.r = _effectcolor.r * ratio;
-  glowcolor.g = _effectcolor.g * ratio;
-  glowcolor.b = _effectcolor.b * ratio;
+  glowcolor.r = _color_fg.r * ratio;
+  glowcolor.g = _color_fg.g * ratio;
+  glowcolor.b = _color_fg.b * ratio;
 
   if (_direction == FORWARD) {
     _counter++;
@@ -403,9 +371,9 @@ void NeoPixelEffects::updateGlowEffect()
 // void NeoPixelEffects::updateFireworkEffect()
 // {
 //   static NeoPixelEffects *m = new NeoPixelEffects(_pixset, COMET, _pixstart,                  _pixend - _pixaoe - 4, 2,         25,     CRGB::White,  false, FORWARD);
-//   static NeoPixelEffects *s1 = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend - _pixaoe - 2, stars_aoe, _delay, _effectcolor, false, REVERSE);
-//   static NeoPixelEffects *s2 = new NeoPixelEffects(_pixset, NONE, _pixend - _pixaoe - 2,      stars_end,             stars_aoe, _delay, _effectcolor, false, FORWARD);
-//   static NeoPixelEffects *sf = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend,               1,         7,      _effectcolor, false, REVERSE);
+//   static NeoPixelEffects *s1 = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend - _pixaoe - 2, stars_aoe, _delay, _color_fg, false, REVERSE);
+//   static NeoPixelEffects *s2 = new NeoPixelEffects(_pixset, NONE, _pixend - _pixaoe - 2,      stars_end,             stars_aoe, _delay, _color_fg, false, FORWARD);
+//   static NeoPixelEffects *sf = new NeoPixelEffects(_pixset, NONE, _pixend - 2 * _pixaoe - 4,  _pixend,               1,         7,      _color_fg, false, REVERSE);
 //
 //   if (_counter == 0 && m->getEffect() == NONE) {
 //     delay(200);
@@ -432,7 +400,7 @@ void NeoPixelEffects::updateGlowEffect()
 
 // void NeoPixelEffects::updateSparkleFillEffect()
 // {
-//   static NeoPixelEffects *sparkles = new NeoPixelEffects(_pixset, STATIC, (_direction==FORWARD)?_pixstart,  (_direction==FORWARD)?_pixstart:_pixend, 1, _delay, _effectcolor, false, _direction);
+//   static NeoPixelEffects *sparkles = new NeoPixelEffects(_pixset, STATIC, (_direction==FORWARD)?_pixstart,  (_direction==FORWARD)?_pixstart:_pixend, 1, _delay, _color_fg, false, _direction);
 //
 //   sparkles->update();
 //
@@ -457,17 +425,13 @@ void NeoPixelEffects::updateGlowEffect()
 
 void NeoPixelEffects::updateRainbowWaveEffect()
 {
-  // TODO resets for some reason (does it?)
-  // TODO consider hueval and it's static properties
-  // OR... leave it like this
-  static uint8_t hueval = 0;
-  static float ratio = 255.0  / _pixrange;
+  float ratio = 255.0  / _pixrange;
 
   for (int i = _pixstart; i <= _pixend; i++) {
-    CRGB color = CHSV((uint8_t)((hueval + i) * ratio), 255, 255);
+    CRGB color = CHSV((uint8_t)((_counter + i) * ratio), 255, 255);
     _pixset[i] = color;
   }
-  hueval++;
+  _counter = (_direction) ? _counter + 1 : _counter - 1;
 }
 
 void NeoPixelEffects::updateStrobeEffect()
@@ -475,10 +439,10 @@ void NeoPixelEffects::updateStrobeEffect()
   CRGB strobecolor;
   if (_counter % 2 == 0) {
     // TODO show foreground color
-    strobecolor = _effectcolor;
+    strobecolor = _color_fg;
   } else {
     // TODO show background color
-    strobecolor = CRGB::Black;
+    strobecolor = _color_bg;
   }
 
   for (int j = _pixstart; j <= _pixend; j++) {
@@ -487,19 +451,19 @@ void NeoPixelEffects::updateStrobeEffect()
   _counter++;
 }
 
-void NeoPixelEffects::updateSineWaveEffect(int wavetype)
+void NeoPixelEffects::updateSineWaveEffect()
 {
   CRGB wavecolor;
   for (int i = _pixstart; i <= _pixend; i++) {
     float ratio;
-    if (!wavetype) {
+    if (!_subtype) {
       ratio = sin8(_counter + (i - _pixstart) * 200 / _pixrange) / 255.0;
     } else {
       ratio = triwave8(_counter + (i - _pixstart) * 200 / _pixrange) / 255.0;
     }
-    wavecolor.r = _effectcolor.r * ratio;
-    wavecolor.g = _effectcolor.g * ratio;
-    wavecolor.b = _effectcolor.b * ratio;
+    wavecolor.r = _color_fg.r * ratio;
+    wavecolor.g = _color_fg.g * ratio;
+    wavecolor.b = _color_fg.b * ratio;
     _pixset[i] = wavecolor;
   }
   _counter = (_direction) ? _counter + 1 : _counter - 1;
@@ -538,28 +502,35 @@ void NeoPixelEffects::setDelayHz(int delay_hz)
   if (delay_hz > 0) {
     _delay = (unsigned long)(1.0 / delay_hz * 1000);
   }
-  _lastupdate = 0;
+  update();
 }
 
 void NeoPixelEffects::setDelay(unsigned long delay_ms)
 {
   _delay = delay_ms;
   _lastupdate = 0;
+  update();
 }
 
 void NeoPixelEffects::setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue)
 {
   if (color_red > -1 && color_green > -1 && color_blue > -1) {
-    _effectcolor.r = (color_red > 255) ? 255 : color_red;
-    _effectcolor.g = (color_green > 255) ? 255 : color_green;
-    _effectcolor.b = (color_blue > 255) ? 255 : color_blue;
+    _color_fg.r = (color_red > 255) ? 255 : color_red;
+    _color_fg.g = (color_green > 255) ? 255 : color_green;
+    _color_fg.b = (color_blue > 255) ? 255 : color_blue;
   }
   _lastupdate = 0;
 }
 
 void NeoPixelEffects::setColor(CRGB color_crgb)
 {
-  _effectcolor = color_crgb;
+  _color_fg = color_crgb;
+  _lastupdate = 0;
+}
+
+void NeoPixelEffects::setBackgroundColor(CRGB color_crgb)
+{
+  _color_bg = color_crgb;
   _lastupdate = 0;
 }
 
@@ -586,55 +557,41 @@ void NeoPixelEffects::setDirection(bool direction)
   _lastupdate = 0;
 }
 
+void NeoPixelEffects::setSubtype(uint8_t subtype)
+{
+  _subtype = subtype;
+  _lastupdate = 0;
+}
+
 void NeoPixelEffects::clear()
 {
-  for (int i = _pixstart; i <= _pixend; i++) {
-    _pixset[i] = CRGB::Black;
-  }
-  setEffect(NONE);
-  setStatus(INACTIVE);
+  fill_solid(CRGB::Black);
 }
 
 void NeoPixelEffects::fill_solid(CRGB color_crgb)
 {
-  if (_effect == NONE || _status == INACTIVE) {
-    for (int i = _pixstart; i <= _pixend; i++) {
-      _pixset[i] = color_crgb;
-    }
-
-    setEffect(NONE);
-    setStatus(INACTIVE);
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pixset[i] = color_crgb;
   }
+
+  setEffect(NONE);
+  setStatus(INACTIVE);
 }
 
 void NeoPixelEffects::fill_gradient(CRGB color_crgb1, CRGB color_crgb2)
 {
-  if (_effect == NONE || _status == INACTIVE) {
-    clear();
+  int delta_red = color_crgb1.r - color_crgb2.r;
+  int delta_green = color_crgb1.g - color_crgb2.g;
+  int delta_blue = color_crgb1.b - color_crgb2.b;
 
-    int delta_red = color_crgb1.r - color_crgb2.r;
-    int delta_green = color_crgb1.g - color_crgb2.g;
-    int delta_blue = color_crgb1.b - color_crgb2.b;
-
-    for (int i = _pixstart; i <= _pixend; i++) {
-      float part = (float)(i - _pixstart) / _pixrange;
-      uint8_t grad_red = color_crgb1.r - (delta_red * part);
-      uint8_t grad_green = color_crgb1.g - (delta_green * part);
-      uint8_t grad_blue = color_crgb1.b - (delta_blue * part);
-      _pixset[i] = CRGB(grad_red, grad_green, grad_blue);
-    }
-
-    setEffect(NONE);
-    setStatus(INACTIVE);
+  for (int i = _pixstart; i <= _pixend; i++) {
+    float part = (float)(i - _pixstart) / _pixrange;
+    uint8_t grad_red = color_crgb1.r - (delta_red * part);
+    uint8_t grad_green = color_crgb1.g - (delta_green * part);
+    uint8_t grad_blue = color_crgb1.b - (delta_blue * part);
+    _pixset[i] = CRGB(grad_red, grad_green, grad_blue);
   }
+
+  setEffect(NONE);
+  setStatus(INACTIVE);
 }
-
-
-// AssociatedEffects* NeoPixelEffects::createAssocEffect(CRGB *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir)
-// {
-//   AssociatedEffects *newAssocEffect;
-//   newAssocEffect = new AssociatedEffects;
-//   newAssocEffect->effect =  = new NeoPixelEffects(*pix, effect, pixstart, pixend, aoe, delay, color_crgb, looping, dir);
-//   newAssocEffect->next = NULL;
-//   return *newAssocEffect;
-// }

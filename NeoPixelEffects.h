@@ -48,9 +48,9 @@ enum Effect {
 };
 
 enum EffectStatus {
+  INACTIVE,
   ACTIVE,
   PAUSED,
-  INACTIVE,
   NUM_EFFECTSTATUS
 };
 
@@ -68,6 +68,7 @@ class NeoPixelEffects {
     void setStatus(EffectStatus status);
     void setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue);
     void setColor(CRGB color_crgb);
+    void setBackgroundColor(CRGB color_crgb);
     void setRange(int pixstart, int pixend);
     void setAreaOfEffect(int aoe);
     void setDelay(unsigned long delay_ms);
@@ -93,35 +94,27 @@ class NeoPixelEffects {
     // void updateSparkleFillEffect();
     void updateRainbowWaveEffect();
     void updateStrobeEffect();
-    void updateSineWaveEffect(int wavetype);
-
-    // AssociatedEffects* createAssocEffect(CRGB pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
+    void updateSineWaveEffect();
 
     CRGB *_pixset;          // A reference to the one created in the user code
     Effect _effect;         // Your silly or awesome effect!
     EffectStatus _status;
-    CRGB _effectcolor;      // Up to 2 colors used in the effects, refer to struct
+    CRGB _color_fg;
+    CRGB _color_bg;
     int
       _pixstart,            // First NeoPixel in range of effect
       _pixend,              // Last NeoPixel in range of effect
       _pixrange,            // Length of effect area
       _pixaoe,              // The length of the effect that takes place within the range
       _pixcurrent,          // Head pixel that indicates current pixel to base effect on
-      _counter,
-      _type;
+      _counter;
+    uint8_t _subtype;          // Defines sub type to be used
     bool
       _repeat,              // Whether or not the effect loops in area
       _direction;           // Whether or not the effect moves from start to end pixel
     unsigned long
       _lastupdate,          // Last update time, in milliseconds since sys reboot
       _delay;               // Period at which effect should update, in milliseconds
-    // AssociatedEffects *assoc_effects;
-    // AssociatedEffects *aeptr;
 };
-
-// struct AssociatedEffects {
-//   NeoPixelEffects effect;
-//   AssociatedEffects *next;
-// };
 
 #endif

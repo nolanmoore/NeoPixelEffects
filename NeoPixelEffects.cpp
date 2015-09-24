@@ -64,6 +64,9 @@ void NeoPixelEffects::setEffect(Effect effect)
   } else {
     _pixcurrent = _pixend;
     _counter = 100;
+    if (effect == TALKING) {
+      _counter = 0;
+    }
   }
   _lastupdate = 0;
   _status = ACTIVE;
@@ -71,7 +74,7 @@ void NeoPixelEffects::setEffect(Effect effect)
 
 void NeoPixelEffects::update()
 {
-  if (_effect != NONE || _status == ACTIVE) {
+  if (_status == ACTIVE) {
     unsigned long now = millis();
     if (now - _lastupdate > _delay) {
       _lastupdate = now;
@@ -279,13 +282,13 @@ void NeoPixelEffects::updateFillInEffect()
     if (_pixcurrent != _pixend) {
       _pixcurrent++;
     } else {
-      stop();
+      pause();
     }
   } else {
     if (_pixcurrent != _pixstart) {
       _pixcurrent--;
     } else {
-      stop();
+      pause();
     }
   }
 }
@@ -314,7 +317,7 @@ void NeoPixelEffects::updateGlowEffect()
     if (_counter <= 0) {
       _direction = FORWARD;
       if (!_repeat) {
-        stop();
+        pause();
       }
     }
   }
@@ -432,7 +435,7 @@ void NeoPixelEffects::updateWaveEffect(int subtype)
     CRGB wavecolor = CRGB(_color_fg.r * ratio, _color_fg.g * ratio, _color_fg.b * ratio);
     _pixset[i] = wavecolor;
   }
-  _counter = (_direction) ? _counter + 4 : _counter - 4;
+  _counter = (_direction) ? _counter + 2 : _counter - 2;
 }
 
 // void NeoPixelEffects::updateTalkingEffectV2()
@@ -514,7 +517,7 @@ void NeoPixelEffects::updateTalkingEffect()
 
   if (init) {
     _pixaoe = 3;
-    _pixcurrent = 0;
+    _counter = 0;
     _direction = FORWARD;
     init = 0;
   }
@@ -525,14 +528,14 @@ void NeoPixelEffects::updateTalkingEffect()
     lastupdate = now;
     next_update = random16(150, 450); // About the min and max time between syllables
     target_pix = random8(_pixaoe, _pixrange / 2);
-    _direction = (target_pix > _pixcurrent) ? FORWARD : REVERSE;
+    _direction = (target_pix > _counter) ? FORWARD : REVERSE;
   }
 
-  if (_pixcurrent != target_pix) {
+  if (_counter != target_pix) {
     if (_direction == FORWARD) {
-      _pixcurrent++;
+      _counter++;
     } else {
-      _pixcurrent--;
+      _counter--;
     }
   } else {
     if (target_pix != 0) {
@@ -546,11 +549,11 @@ void NeoPixelEffects::updateTalkingEffect()
   }
 
   clear();
-  if (_pixcurrent != 0) {
+  if (_counter != 0) {
     if (_pixrange % 2 != 0) {
       _pixset[_pixstart + _pixrange / 2] = _color_fg;
     }
-    for (int i = 0; i < _pixcurrent; i++) {
+    for (int i = 0; i < _counter; i++) {
       _pixset[_pixstart + (_pixrange / 2) - 1 - i] = _color_fg;
       if (_pixrange % 2 == 0) {
         _pixset[_pixstart + (_pixrange / 2) + i] = _color_fg;
@@ -654,6 +657,7 @@ void NeoPixelEffects::setDirection(bool direction)
 
 void NeoPixelEffects::stop()
 {
+  clear();
   setEffect(NONE);
   setStatus(INACTIVE);
 }

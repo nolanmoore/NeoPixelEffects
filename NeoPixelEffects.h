@@ -99,7 +99,7 @@ class NeoPixelEffects {
     void updateStrobeEffect();
     void updateWaveEffect(int subtype);
     void updateTalkingEffect();
-    void initTalkingEffect();
+    // void initTalkingEffect();
     // void initTalkingEffect1(uint8_t &brightness_array, uint16_t &delay_array, uint8_t &maxb, uint8_t &minb, uint8_t &current_b);
     // void updateFireworkEffect();
     // void updateSparkleFillEffect();

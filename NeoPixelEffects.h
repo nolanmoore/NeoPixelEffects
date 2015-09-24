@@ -43,6 +43,7 @@ enum Effect {
   SINEWAVE,
   RANDOM,
   TALKING,
+  TRIWAVE,
   // INVERSELARSON,
   // FIREWORK,
   // SPARKLEFILL,
@@ -52,7 +53,6 @@ enum Effect {
 enum EffectStatus {
   INACTIVE,
   ACTIVE,
-  PAUSED,
   NUM_EFFECTSTATUS
 };
 
@@ -68,7 +68,6 @@ class NeoPixelEffects {
     void setEffect(Effect effect);  // Sets effect
     EffectStatus getStatus();
     void setStatus(EffectStatus status);
-    void setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue);
     void setColor(CRGB color_crgb);
     void setBackgroundColor(CRGB color_crgb);
     void setRange(int pixstart, int pixend);
@@ -82,25 +81,26 @@ class NeoPixelEffects {
     void stop();
     void pause();
     void play();
+
     void clear();
     void fill_solid(CRGB color_crgb);
     void fill_gradient(CRGB color_crgb1, CRGB color_crgb2);
 
   private:
-    void updateCometEffect();
+    void updateCometEffect(int subtype);
     void updateChaseEffect();
     void updatePulseEffect();
-    void updateStaticEffect();
+    void updateStaticEffect(int subtype);
     void updateFadeOutEffect();
     void updateFillInEffect();
     void updateSolidEffect();
     void updateGlowEffect();
     void updateRainbowWaveEffect();
     void updateStrobeEffect();
-    void updateWaveEffect();
+    void updateWaveEffect(int subtype);
     void updateTalkingEffect();
-    // void initTalkingEffect1(uint8_t &brightness_array, uint16_t &delay_array, uint8_t &maxb, uint8_t &minb, uint8_t &current_b);
     void initTalkingEffect();
+    // void initTalkingEffect1(uint8_t &brightness_array, uint16_t &delay_array, uint8_t &maxb, uint8_t &minb, uint8_t &current_b);
     // void updateFireworkEffect();
     // void updateSparkleFillEffect();
 

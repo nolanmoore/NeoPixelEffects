@@ -22,7 +22,7 @@
 #include <NeoPixelEffects.h>
 
 NeoPixelEffects::NeoPixelEffects(CRGB *ledset, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool repeat, bool dir) :
-  _pixset(ledset), _color_fg(color_crgb), _color_bg(CRGB::Black), _repeat(repeat), _direction(dir), _counter(0), _subtype(0)
+  _pixset(ledset), _color_fg(color_crgb), _color_bg(CRGB::Black), _repeat(repeat), _direction(dir), _counter(0)
 {
   setRange(pixstart, pixend);
   setAreaOfEffect(aoe);
@@ -42,7 +42,6 @@ NeoPixelEffects::NeoPixelEffects()
   _pixaoe = 1;
   _pixcurrent = _pixstart;
   _counter = 0;
-  _subtype = 0;
   _delay = 0;
   _lastupdate = 0;
   _color_fg = CRGB::Black;
@@ -67,22 +66,21 @@ void NeoPixelEffects::setEffect(Effect effect)
     _counter = 100;
   }
   _lastupdate = 0;
+  _status = ACTIVE;
 }
 
 void NeoPixelEffects::update()
 {
   if (_effect != NONE || _status == ACTIVE) {
-    unsigned long timenow = millis();
-    if (timenow - _lastupdate > _delay) {
-      _lastupdate = timenow;
+    unsigned long now = millis();
+    if (now - _lastupdate > _delay) {
+      _lastupdate = now;
       switch (_effect) {
         case COMET:
-          _subtype = 0;
-          updateCometEffect();
+          updateCometEffect(0);
           break;
         case LARSON:
-          _subtype = 1;
-          updateCometEffect();
+          updateCometEffect(1);
           break;
         case CHASE:
           updateChaseEffect();
@@ -91,12 +89,10 @@ void NeoPixelEffects::update()
           updatePulseEffect();
           break;
         case STATIC:
-          _subtype = 0;
-          updateStaticEffect();
+          updateStaticEffect(0);
           break;
         case RANDOM:
-          _subtype = 1;
-          updateStaticEffect();
+          updateStaticEffect(1);
           break;
         case FADE:
           updateFadeOutEffect();
@@ -114,7 +110,10 @@ void NeoPixelEffects::update()
           updateStrobeEffect();
           break;
         case SINEWAVE:
-          updateWaveEffect();
+          updateWaveEffect(0);
+          break;
+        case TRIWAVE:
+          updateWaveEffect(1);
           break;
         case TALKING:
           updateTalkingEffect();
@@ -132,9 +131,9 @@ void NeoPixelEffects::update()
   }
 }
 
-void NeoPixelEffects::updateCometEffect()
+void NeoPixelEffects::updateCometEffect(int subtype)
 {
-  if (_subtype > 0) {
+  if (subtype > 0) {
     if (_repeat) _repeat = false;
   }
 
@@ -174,8 +173,8 @@ void NeoPixelEffects::updateCometEffect()
       if (_repeat) {
         _pixcurrent = _pixstart;
       } else {
-        if (_subtype > 0) {
-          setDirection(REVERSE);
+        if (subtype > 0) {
+          _direction = REVERSE;
         } else {
           stop();
         }
@@ -188,8 +187,8 @@ void NeoPixelEffects::updateCometEffect()
       if (_repeat) {
         _pixcurrent = _pixend;
       } else {
-        if (_subtype > 0) {
-          setDirection(FORWARD);
+        if (subtype > 0) {
+          _direction = FORWARD;
         } else {
           stop();
         }
@@ -220,35 +219,28 @@ void NeoPixelEffects::updateChaseEffect()
   _counter++;
 }
 
-void NeoPixelEffects::updatePulseEffect()
+void NeoPixelEffects::updateStrobeEffect()
 {
-  CRGB pulsecolor;
-
-  float ratio = _counter / 100.0;
-  pulsecolor.r = _color_fg.r * ratio;
-  pulsecolor.g = _color_fg.g * ratio;
-  pulsecolor.b = _color_fg.b * ratio;
-
-  if (_direction == FORWARD) {
-    _counter++;
-    if (_counter >= 100) setDirection(REVERSE);
+  CRGB strobecolor;
+  if (_counter % 2 == 0) {
+    strobecolor = _color_fg;
   } else {
-    _counter--;
-    if (_counter <= 0) setDirection(FORWARD);
+    strobecolor = _color_bg;
   }
 
-  for (int i = _pixstart; i <= _pixend; i++) {
-    _pixset[i] = pulsecolor;
+  for (int j = _pixstart; j <= _pixend; j++) {
+    _pixset[j] = strobecolor;
   }
+  _counter++;
 }
 
-void NeoPixelEffects::updateStaticEffect()
+void NeoPixelEffects::updateStaticEffect(int subtype)
 {
   random16_add_entropy(random(65535));
 
   for (int i = _pixstart; i <= _pixend; i++) {
     CRGB randomcolor;
-    if (_subtype == 0) {
+    if (subtype == 0) {
       float random_ratio = random8(101) / 100.0;
       randomcolor.r = _color_fg.r * random_ratio;
       randomcolor.g = _color_fg.g * random_ratio;
@@ -316,11 +308,11 @@ void NeoPixelEffects::updateGlowEffect()
 
   if (_direction == FORWARD) {
     _counter++;
-    if (_counter >= 100) setDirection(REVERSE);
+    if (_counter >= 100) _direction = REVERSE;
   } else {
     _counter--;
     if (_counter <= 0) {
-      setDirection(FORWARD);
+      _direction = FORWARD;
       if (!_repeat) {
         stop();
       }
@@ -336,6 +328,28 @@ void NeoPixelEffects::updateGlowEffect()
   }
   for (int i = 0; i < _pixaoe; i++) {
     _pixset[_pixstart + glow_area_half + i] = glowcolor;
+  }
+}
+
+void NeoPixelEffects::updatePulseEffect()
+{
+  CRGB pulsecolor;
+
+  float ratio = _counter / 100.0;
+  pulsecolor.r = _color_fg.r * ratio;
+  pulsecolor.g = _color_fg.g * ratio;
+  pulsecolor.b = _color_fg.b * ratio;
+
+  if (_direction == FORWARD) {
+    _counter++;
+    if (_counter >= 100) _direction = REVERSE;
+  } else {
+    _counter--;
+    if (_counter <= 0) _direction = FORWARD;
+  }
+
+  for (int i = _pixstart; i <= _pixend; i++) {
+    _pixset[i] = pulsecolor;
   }
 }
 
@@ -405,39 +419,23 @@ void NeoPixelEffects::updateRainbowWaveEffect()
   _counter = (_direction) ? _counter + 1 : _counter - 1;
 }
 
-void NeoPixelEffects::updateStrobeEffect()
-{
-  CRGB strobecolor;
-  if (_counter % 2 == 0) {
-    strobecolor = _color_fg;
-  } else {
-    strobecolor = _color_bg;
-  }
-
-  for (int j = _pixstart; j <= _pixend; j++) {
-    _pixset[j] = strobecolor;
-  }
-  _counter++;
-}
-
-void NeoPixelEffects::updateWaveEffect()
+void NeoPixelEffects::updateWaveEffect(int subtype)
 {
   for (int i = _pixstart; i <= _pixend; i++) {
     float ratio;
-    if (!_subtype) {
-      // ratio = sin8(_counter * (i - _pixstart) / _pixrange) / 255.0; // Shrinking wave
-      ratio = sin8(255 * (i - _pixstart) / _pixrange) / 255.0; // Shrinking wave
+    if (!subtype) {
+      ratio = cubicwave8((255 * (i - _pixstart) / _pixrange) + _counter) / 255.0;
     } else {
-      // ratio = triwave8(_counter * (i - _pixstart) / _pixrange) / 255.0; // Shrinking wave
+      ratio = triwave8((255 * (i - _pixstart) / _pixrange) + _counter) / 255.0;
     }
 
     CRGB wavecolor = CRGB(_color_fg.r * ratio, _color_fg.g * ratio, _color_fg.b * ratio);
     _pixset[i] = wavecolor;
   }
-  _counter = (_direction) ? _counter + 1 : _counter - 1;
+  _counter = (_direction) ? _counter + 4 : _counter - 4;
 }
 
-// void NeoPixelEffects::updateTalkingEffect1()
+// void NeoPixelEffects::updateTalkingEffectV2()
 // {
 //   static uint8_t init = 1;
 //   static uint8_t next_bright = 0;
@@ -478,10 +476,10 @@ void NeoPixelEffects::updateWaveEffect()
 //     }
 //   } else {
 //     if (current_b == next_bright) {
-//       setDirection(REVERSE);
+//       _direction = REVERSE;
 //       delta_b = current_b - min_b;
 //     } else {
-//       setDirection(FORWARD);
+//       _direction = FORWARD;
 //     }
 //   }
 //
@@ -493,7 +491,7 @@ void NeoPixelEffects::updateWaveEffect()
 //   }
 // }
 //
-// void NeoPixelEffects::initTalkingEffect1(uint8_t &bright, uint16_t &delay, uint8_t &maxb, uint8_t &minb, uint8_t &nowb)
+// void NeoPixelEffects::initTalkingEffectV2(uint8_t &bright, uint16_t &delay, uint8_t &maxb, uint8_t &minb, uint8_t &nowb)
 // {
 //   maxb = max(_color_fg.r, max(_color_fg.g, _color_fg.b));
 //   minb = _color_bg.r;
@@ -508,12 +506,14 @@ void NeoPixelEffects::updateWaveEffect()
 
 void NeoPixelEffects::updateTalkingEffect()
 {
+  // Minimum 6 range
   static uint8_t init = 1;
   static uint8_t target_pix = 0;
   static uint16_t next_update = 0;
   static unsigned long lastupdate = 0;
 
   if (init) {
+    _pixaoe = 3;
     _pixcurrent = 0;
     _direction = FORWARD;
     init = 0;
@@ -523,8 +523,8 @@ void NeoPixelEffects::updateTalkingEffect()
 
   if (now - lastupdate > next_update) {
     lastupdate = now;
-    next_update = random16(150, 450);
-    target_pix = random8(3, _pixrange / 2);
+    next_update = random16(150, 450); // About the min and max time between syllables
+    target_pix = random8(_pixaoe, _pixrange / 2);
     _direction = (target_pix > _pixcurrent) ? FORWARD : REVERSE;
   }
 
@@ -615,16 +615,6 @@ void NeoPixelEffects::setDelay(unsigned long delay_ms)
   update();
 }
 
-void NeoPixelEffects::setColorRGB(uint8_t color_red, uint8_t color_green, uint8_t color_blue)
-{
-  if (color_red > -1 && color_green > -1 && color_blue > -1) {
-    _color_fg.r = (color_red > 255) ? 255 : color_red;
-    _color_fg.g = (color_green > 255) ? 255 : color_green;
-    _color_fg.b = (color_blue > 255) ? 255 : color_blue;
-  }
-  _lastupdate = 0;
-}
-
 void NeoPixelEffects::setColor(CRGB color_crgb)
 {
   _color_fg = color_crgb;
@@ -640,7 +630,9 @@ void NeoPixelEffects::setBackgroundColor(CRGB color_crgb)
 void NeoPixelEffects::setStatus(EffectStatus status)
 {
   _status = status;
-  _lastupdate = 0;
+  if (status == ACTIVE) {
+    _lastupdate = 0;
+  }
 }
 
 EffectStatus NeoPixelEffects::getStatus()
@@ -657,12 +649,6 @@ void NeoPixelEffects::setRepeat(bool repeat)
 void NeoPixelEffects::setDirection(bool direction)
 {
   _direction = direction;
-  _lastupdate = 0;
-}
-
-void NeoPixelEffects::setSubtype(uint8_t subtype)
-{
-  _subtype = subtype;
   _lastupdate = 0;
 }
 

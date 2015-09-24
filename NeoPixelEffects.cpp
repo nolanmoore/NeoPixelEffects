@@ -548,16 +548,16 @@ void NeoPixelEffects::updateTalkingEffect()
   clear();
   if (_pixcurrent != 0) {
     for (int i = 0; i < _pixcurrent; i++) {
-      _pixset[(_pixrange / 2) - 1 - i] = _color_fg;
-      _pixset[(_pixrange / 2) + i] = _color_fg;
+      _pixset[_pixstart + (_pixrange / 2) - 1 - i] = _color_fg;
+      _pixset[_pixstart + (_pixrange / 2) + i] = _color_fg;
     }
   } else {
     CRGB dim1 = CRGB(_color_fg.r * 0.2,_color_fg.g * 0.2, _color_fg.b * 0.2);
     CRGB dim2 = CRGB(_color_fg.r * 0.1,_color_fg.g * 0.1, _color_fg.b * 0.1);
-    _pixset[_pixrange / 2 - 1] = dim1;
-    _pixset[_pixrange / 2] = dim1;
-    _pixset[_pixrange / 2 - 2] = dim2;
-    _pixset[_pixrange / 2 + 1] = dim2;
+    _pixset[_pixstart + _pixrange / 2 - 1] = dim1;
+    _pixset[_pixstart + _pixrange / 2] = dim1;
+    _pixset[_pixstart + _pixrange / 2 - 2] = dim2;
+    _pixset[_pixstart + _pixrange / 2 + 1] = dim2;
   }
 }
 

@@ -38,12 +38,14 @@ enum Effect {
   FADE,
   FILLIN,
   GLOW,
-  // FIREWORK,
-  // SPARKLEFILL,
   RAINBOWWAVE,
   STROBE,
   SINEWAVE,
+  RANDOM,
+  TALKING,
   // INVERSELARSON,
+  // FIREWORK,
+  // SPARKLEFILL,
   NUM_EFFECT
 };
 
@@ -75,14 +77,15 @@ class NeoPixelEffects {
     void setDelayHz(int delay_hz);
     void setRepeat(bool repeat);
     void setDirection(bool direction);
+    void setSubtype(uint8_t subtype);
 
+    void stop();
     void clear();
     void fill_solid(CRGB color_crgb);
     void fill_gradient(CRGB color_crgb1, CRGB color_crgb2);
 
   private:
     void updateCometEffect();
-    void updateLarsonEffect();
     void updateChaseEffect();
     void updatePulseEffect();
     void updateStaticEffect();
@@ -90,17 +93,20 @@ class NeoPixelEffects {
     void updateFillInEffect();
     void updateSolidEffect();
     void updateGlowEffect();
-    // void updateFireworkEffect();
-    // void updateSparkleFillEffect();
     void updateRainbowWaveEffect();
     void updateStrobeEffect();
-    void updateSineWaveEffect();
+    void updateWaveEffect();
+    void updateTalkingEffect();
+    // void initTalkingEffect1(uint8_t &brightness_array, uint16_t &delay_array, uint8_t &maxb, uint8_t &minb, uint8_t &current_b);
+    void initTalkingEffect();
+    // void updateFireworkEffect();
+    // void updateSparkleFillEffect();
 
     CRGB *_pixset;          // A reference to the one created in the user code
-    Effect _effect;         // Your silly or awesome effect!
-    EffectStatus _status;
     CRGB _color_fg;
     CRGB _color_bg;
+    Effect _effect;         // Your silly or awesome effect!
+    EffectStatus _status;
     int
       _pixstart,            // First NeoPixel in range of effect
       _pixend,              // Last NeoPixel in range of effect

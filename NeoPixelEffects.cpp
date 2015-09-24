@@ -77,6 +77,7 @@ void NeoPixelEffects::update()
       _lastupdate = timenow;
       switch (_effect) {
         case COMET:
+          _subtype = 0;
           updateCometEffect();
           break;
         case LARSON:
@@ -84,7 +85,6 @@ void NeoPixelEffects::update()
           updateCometEffect();
           break;
         case CHASE:
-          _subtype = 0;
           updateChaseEffect();
           break;
         case PULSE:
@@ -547,17 +547,28 @@ void NeoPixelEffects::updateTalkingEffect()
 
   clear();
   if (_pixcurrent != 0) {
+    if (_pixrange % 2 != 0) {
+      _pixset[_pixstart + _pixrange / 2] = _color_fg;
+    }
     for (int i = 0; i < _pixcurrent; i++) {
       _pixset[_pixstart + (_pixrange / 2) - 1 - i] = _color_fg;
-      _pixset[_pixstart + (_pixrange / 2) + i] = _color_fg;
+      if (_pixrange % 2 == 0) {
+        _pixset[_pixstart + (_pixrange / 2) + i] = _color_fg;
+      } else {
+        _pixset[_pixstart + (_pixrange / 2) + 1 + i] = _color_fg;
+      }
     }
   } else {
     CRGB dim1 = CRGB(_color_fg.r * 0.2,_color_fg.g * 0.2, _color_fg.b * 0.2);
     CRGB dim2 = CRGB(_color_fg.r * 0.1,_color_fg.g * 0.1, _color_fg.b * 0.1);
-    _pixset[_pixstart + _pixrange / 2 - 1] = dim1;
     _pixset[_pixstart + _pixrange / 2] = dim1;
-    _pixset[_pixstart + _pixrange / 2 - 2] = dim2;
     _pixset[_pixstart + _pixrange / 2 + 1] = dim2;
+    if (_pixrange % 2 == 0) {
+      _pixset[_pixstart + _pixrange / 2 - 1] = dim1;
+      _pixset[_pixstart + _pixrange / 2 - 2] = dim2;
+    } else {
+      _pixset[_pixstart + _pixrange / 2 - 1] = dim2;
+    }
   }
 }
 
@@ -659,6 +670,20 @@ void NeoPixelEffects::stop()
 {
   setEffect(NONE);
   setStatus(INACTIVE);
+}
+
+void NeoPixelEffects::pause()
+{
+  if (getEffect() != NONE && getStatus() == ACTIVE) {
+    setStatus(INACTIVE);
+  }
+}
+
+void NeoPixelEffects::play()
+{
+  if (getEffect() != NONE && getStatus() != ACTIVE) {
+    setStatus(ACTIVE);
+  }
 }
 
 void NeoPixelEffects::clear()

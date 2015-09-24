@@ -80,6 +80,8 @@ class NeoPixelEffects {
     void setSubtype(uint8_t subtype);
 
     void stop();
+    void pause();
+    void play();
     void clear();
     void fill_solid(CRGB color_crgb);
     void fill_gradient(CRGB color_crgb1, CRGB color_crgb2);

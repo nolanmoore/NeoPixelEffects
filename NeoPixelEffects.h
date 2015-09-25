@@ -62,12 +62,10 @@ class NeoPixelEffects {
     NeoPixelEffects();
     ~NeoPixelEffects();
 
-    void initialize(Effect effect); // Initializes effect
-    void update(); // Process effect
-    Effect getEffect();
     void setEffect(Effect effect);  // Sets effect
-    EffectStatus getStatus();
+    Effect getEffect();
     void setStatus(EffectStatus status);
+    EffectStatus getStatus();
     void setColor(CRGB color_crgb);
     void setBackgroundColor(CRGB color_crgb);
     void setRange(int pixstart, int pixend);
@@ -76,8 +74,8 @@ class NeoPixelEffects {
     void setDelayHz(int delay_hz);
     void setRepeat(bool repeat);
     void setDirection(bool direction);
-    void setSubtype(uint8_t subtype);
 
+    void update(); // Process effect
     void stop();
     void pause();
     void play();

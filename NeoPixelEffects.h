@@ -16,7 +16,7 @@
 #ifndef NEOPIXELEFFECTS_H
 #define NEOPIXELEFFECTS_H
 
-#include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 
 #if (ARDUINO >= 100)
  #include <Arduino.h>
@@ -25,81 +25,104 @@
  #include <pins_arduino.h>
 #endif
 
-#define COLOR_RED      {255, 0, 0}
-#define COLOR_YELLOW   {255, 255, 0}
-#define COLOR_GREEN    {0, 255, 0}
-#define COLOR_CYAN     {0, 255, 255}
-#define COLOR_BLUE     {0, 0, 255}
-#define COLOR_MAGENTA  {255, 0, 255}
-#define COLOR_WHITE    {255, 255, 255}
-#define COLOR_BLACK    {0, 0, 0}
-
 #define FORWARD true
 #define REVERSE false
 
 enum Effect {
+  NONE,
   COMET,
+  LARSON,
   CHASE,
   PULSE,
   STATIC,
   FADE,
-  FILL,
-  EMPTY,
-  NONE
+  FILLIN,
+  GLOW,
+  RAINBOWWAVE,
+  STROBE,
+  SINEWAVE,
+  RANDOM,
+  TALKING,
+  TRIWAVE,
+  // INVERSELARSON,
+  // FIREWORK,
+  // SPARKLEFILL,
+  NUM_EFFECT
 };
 
-struct EffectColor {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
+enum EffectStatus {
+  INACTIVE,
+  ACTIVE,
+  NUM_EFFECTSTATUS
 };
 
 class NeoPixelEffects {
   public:
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, int redvalue, int greenvalue, int bluevalue, bool looping, bool dir);
-    NeoPixelEffects(Adafruit_NeoPixel *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, EffectColor ec, bool looping, bool dir);
+    NeoPixelEffects(CRGB *pix, Effect effect, int pixstart, int pixend, int aoe, unsigned long delay, CRGB color_crgb, bool looping, bool dir);
     NeoPixelEffects();
     ~NeoPixelEffects();
 
     void initialize(Effect effect); // Initializes effect
     void update(); // Process effect
-    void setEffect(Effect effect);  // Sets effect
     Effect getEffect();
-    int setColor(int redvalue, int greenvalue, int bluevalue);
-    void setColor(EffectColor ec);
-    int setRange(int pixstart, int pixend);
-    int setAreaOfEffect(int aoe);
-    void setDelay(unsigned long delay);
-    void setLooping(bool looping);
-    void setDirection(bool dir);
-    void resetEffect();
-    // void transferPixels(Adafruit_NeoPixel *newpixelset);
+    void setEffect(Effect effect);  // Sets effect
+    EffectStatus getStatus();
+    void setStatus(EffectStatus status);
+    void setColor(CRGB color_crgb);
+    void setBackgroundColor(CRGB color_crgb);
+    void setRange(int pixstart, int pixend);
+    void setAreaOfEffect(int aoe);
+    void setDelay(unsigned long delay_ms);
+    void setDelayHz(int delay_hz);
+    void setRepeat(bool repeat);
+    void setDirection(bool direction);
+    void setSubtype(uint8_t subtype);
+
+    void stop();
+    void pause();
+    void play();
+
+    void clear();
+    void fill_solid(CRGB color_crgb);
+    void fill_gradient(CRGB color_crgb1, CRGB color_crgb2);
 
   private:
-    void updateCometEffect();
+    void updateCometEffect(int subtype);
     void updateChaseEffect();
     void updatePulseEffect();
-    void updateStaticEffect();
-    void updateFadeEffect();
-    void updateFillEffect();
-    void updateEmptyEffect();
+    void updateStaticEffect(int subtype);
+    void updateFadeOutEffect();
+    void updateFillInEffect();
+    void updateSolidEffect();
+    void updateGlowEffect();
+    void updateRainbowWaveEffect();
+    void updateStrobeEffect();
+    void updateWaveEffect(int subtype);
+    void updateTalkingEffect();
+    // void initTalkingEffect();
+    // void initTalkingEffect1(uint8_t &brightness_array, uint16_t &delay_array, uint8_t &maxb, uint8_t &minb, uint8_t &current_b);
+    // void updateFireworkEffect();
+    // void updateSparkleFillEffect();
 
-    Adafruit_NeoPixel *_pix;  // A reference to the one created in the user code TODO is this needed?
-    Effect _effect;           // Your silly or awesome effect!
+    CRGB *_pixset;          // A reference to the one created in the user code
+    CRGB _color_fg;
+    CRGB _color_bg;
+    Effect _effect;         // Your silly or awesome effect!
+    EffectStatus _status;
     int
-      _pixstart,              // First NeoPixel in range of effect
-      _pixend,                // Last NeoPixel in range of effect
-      _pixrange,              // Length of effect area
-      _pixaoe,                // The length of the effect that takes place within the range
-      _pixcurrent;
+      _pixstart,            // First NeoPixel in range of effect
+      _pixend,              // Last NeoPixel in range of effect
+      _pixrange,            // Length of effect area
+      _pixaoe,              // The length of the effect that takes place within the range
+      _pixcurrent,          // Head pixel that indicates current pixel to base effect on
+      _counter;
+    uint8_t _subtype;          // Defines sub type to be used
     bool
-      _looping,               // Whether or not the effect loops in area
-      _direction;               // Whether or not the effect moves from start to end pixel
+      _repeat,              // Whether or not the effect loops in area
+      _direction;           // Whether or not the effect moves from start to end pixel
     unsigned long
-      _lastupdate,            // Last update time, in milliseconds since sys reboot
-      _delay;                 // Period at which effect should update, in milliseconds
-    EffectColor
-      _effectcolor;           // Up to 2 colors used in the effects, refer to struct
+      _lastupdate,          // Last update time, in milliseconds since sys reboot
+      _delay;               // Period at which effect should update, in milliseconds
 };
 
 #endif

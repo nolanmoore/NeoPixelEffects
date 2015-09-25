@@ -12,10 +12,10 @@
 
 CRGB leds[NUM_LEDS];
 
-Effect effectType = STATIC;  // Effect
+Effect effectType = SPARKLETRAIL;  // Effect
 int rangeStart = 0;          // # pixel (> 0 and < NUMPIXELS - 2)
 int rangeEnd = NUM_LEDS - 1;           // # pixel (> 1 and < NUMPIXELS - 1)
-unsigned long updateDelay = 500;   // millis
+unsigned long updateDelay = 250;   // millis
 CRGB grey = CRGB(75, 75, 75);
 
 NeoPixelEffects effect = NeoPixelEffects(leds, effectType, rangeStart, rangeEnd, 1, updateDelay, grey, true, true);

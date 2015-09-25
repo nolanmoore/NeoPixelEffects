@@ -271,7 +271,7 @@ void NeoPixelEffects::updateFadeOutEffect()
   _counter--;
 
   if (_counter <= 0 || fadecolor == CRGB(0,0,0)) {
-    stop();
+    pause();
   }
 }
 
@@ -301,7 +301,6 @@ void NeoPixelEffects::updateGlowEffect()
   } else if (_pixrange % 2 != 0 && _pixaoe % 2 == 0) {
     _pixaoe--;
   }
-  Serial.println(_pixaoe);
 
   float ratio = _counter / 100.0;
   CRGB glowcolor;

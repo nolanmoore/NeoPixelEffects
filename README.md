@@ -16,9 +16,11 @@ Effect getEffect();
 void setEffect(Effect effect);
 EffectStatus getEffectStatus();
 void setColor(CRGB color_crgb);
+void setBackgroundColor(CRGB color_crgb);
 void setRange(int pixstart, int pixend);
 void setAreaOfEffect(int aoe);
 void setDelay(unsigned long delay_ms);
+void setDelayHz(int delay_hz);
 void setLooping(bool value);
 void setDirection(bool direction);
 

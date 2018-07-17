@@ -4,8 +4,8 @@
 # Class
 #######################################
 
-Effect KEYWORD1
-EffectStatus KEYWORD1
+Effect	KEYWORD1
+EffectStatus	KEYWORD1
 NeoPixelEffects	KEYWORD1
 
 #######################################
@@ -14,25 +14,25 @@ NeoPixelEffects	KEYWORD1
 
 setEffect	KEYWORD2
 getEffect	KEYWORD2
-setStatus KEYWORD2
-getStatus KEYWORD2
+setStatus	KEYWORD2
+getStatus	KEYWORD2
 update	KEYWORD2
 setColor	KEYWORD2
 setColorRGB	KEYWORD2
-setDelay KEYWORD2
-setDelayHz KEYWORD2
+setDelay	KEYWORD2
+setDelayHz	KEYWORD2
 setRange	KEYWORD2
 setRepeat	KEYWORD2
 setDirection	KEYWORD2
 setAreaOfEffect	KEYWORD2
 
-clear KEYWORD2
-fill_solid KEYWORD2
-fill_gradient KEYWORD2
+clear	KEYWORD2
+fill_solid	KEYWORD2
+fill_gradient	KEYWORD2
 
 #######################################
 # Constants
 #######################################
 
 FORWARD	LITERAL1
-REVERSE LITERAL1
+REVERSE	LITERAL1

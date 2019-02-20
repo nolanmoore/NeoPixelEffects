@@ -1,8 +1,10 @@
 # NeoPixelEffects Library
 
-A library made to complement the [FastLED](https://github.com/FastLED/FastLED/tree/master) library by Daniel Garcia by providing various visual effects, such as fading, sparkles, static, etc.
+**NOTE: Please be advised that as of February 2019 the library has not been checked to ensure compatibility with latest version of FastLED.**
 
-After downloading, rename folder to 'NeoPixelEffects' and install in Arduino Libraries folder. Restart Arduino IDE, then open File->Sketchbook->Library->NeoPixelEffects->CometEffectExample sketch.
+A visual effects library made to extend the [FastLED](https://github.com/FastLED/FastLED/tree/master) library by Daniel Garcia. Allows the user to easily display simple yet flashy effects, such as fades, sparkles, static, etc.
+
+To install, download the repo then rename the extracted folder to 'NeoPixelEffects'. Move the renamed folder to your Arduino Libraries folder. Restart Arduino IDE, then open File->Sketchbook->Library->NeoPixelEffects->CometEffectExample sketch.
 
 ## Functions
 ### Constructors/Destructors

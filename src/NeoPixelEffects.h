@@ -44,9 +44,9 @@ enum Effect {
   RANDOM,
   TALKING,
   TRIWAVE,
-  // INVERSELARSON,
-  // FIREWORK,
-  // SPARKLEFILL,
+  // INVERSELARSON,	// Not currently implemented
+  // FIREWORK,	// Not currently implemented
+  // SPARKLEFILL,	// Not currently implemented
   NUM_EFFECT
 };
 
